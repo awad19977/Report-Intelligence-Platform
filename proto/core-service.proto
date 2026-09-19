@@ -1,0 +1,395 @@
+syntax = "proto3";
+package rip.coreservice;
+
+import "common.proto";
+
+service CoreService {
+  rpc Call(ServiceCallRequest) returns (ServiceCallResponse);
+  rpc CallStream(ServiceCallRequest) returns (stream ServiceStreamChunk);
+  rpc GetInfo(InfoRequest) returns (ServiceInfo);
+}
+
+service LoggerService {
+  rpc Log(LogRequest) returns (LogResponse);
+  rpc CreateChild(ChildRequest) returns (ChildResponse);
+}
+
+service CacheService {
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc Set(SetRequest) returns (SetResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc Clear(ClearRequest) returns (ClearResponse);
+  rpc Namespace(NamespaceRequest) returns (NamespaceResponse);
+}
+
+service SearchService {
+  rpc Index(IndexRequest) returns (IndexResponse);
+  rpc Search(SearchRequest) returns (SearchResponse);
+  rpc SearchStream(SearchRequest) returns (stream SearchResult);
+  rpc Remove(RemoveRequest) returns (RemoveResponse);
+}
+
+service ConfigService {
+  rpc GetConfig(GetConfigRequest) returns (GetConfigResponse);
+  rpc SetConfig(SetConfigRequest) returns (SetConfigResponse);
+  rpc WatchConfig(WatchConfigRequest) returns (stream ConfigChangeEvent);
+  rpc GetPluginConfig(GetPluginConfigRequest) returns (GetPluginConfigResponse);
+}
+
+service SearchService {
+  rpc Index(IndexRequest) returns (IndexResponse);
+  rpc Search(SearchRequest) returns (SearchResponse);
+  rpc SearchStream(SearchRequest) returns (stream SearchResult);
+  rpc Remove(RemoveRequest) returns (RemoveResponse);
+}
+
+service AuthService {
+  rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);
+  rpc IssueToken(IssueTokenRequest) returns (IssueTokenResponse);
+  rpc CheckPermission(CheckPermissionRequest) returns (CheckPermissionResponse);
+}
+
+service StorageService {
+  rpc Read(ReadRequest) returns (ReadResponse);
+  rpc Write(WriteRequest) returns (WriteResponse);
+  rpc List(ListRequest) returns (ListResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc Exists(ExistsRequest) returns (ExistsResponse);
+}
+
+service ValidationService {
+  rpc Validate(ValidateRequest) returns (ValidateResponse);
+  rpc GetSchema(GetSchemaRequest) returns (GetSchemaResponse);
+}
+
+service DocumentationService {
+  rpc Generate(GenerateRequest) returns (GenerateResponse);
+  rpc GenerateStream(GenerateRequest) returns (stream GenerateChunk);
+}
+
+service VersioningService {
+  rpc Migrate(MigrateRequest) returns (MigrateResponse);
+  rpc CheckVersion(CheckVersionRequest) returns (CheckVersionResponse);
+}
+
+service AiPromptService {
+  rpc RenderTemplate(RenderTemplateRequest) returns (RenderTemplateResponse);
+  rpc GetTemplates(GetTemplatesRequest) returns (GetTemplatesResponse);
+}
+
+message ServiceCallRequest {
+  string service = 1;
+  string method = 2;
+  rip.common.Value args = 3;
+  int32 timeout_ms = 4;
+}
+
+message ServiceCallResponse {
+  rip.common.Value result = 1;
+  rip.common.Error error = 2;
+}
+
+message ServiceStreamChunk {
+  string id = 1;
+  int32 chunk_index = 2;
+  int32 total_chunks = 3;
+  bytes data = 4;
+  bool is_final = 5;
+}
+
+message ServiceInfo {
+  string name = 1;
+  string version = 2;
+  repeated string methods = 3;
+  string description = 4;
+}
+
+message InfoRequest {
+  string service = 1;
+}
+
+message LogRequest {
+  string level = 1;
+  string message = 2;
+  rip.common.Struct meta = 3;
+}
+
+message LogResponse {
+  bool success = 1;
+}
+
+message ChildRequest {
+  string parent_id = 1;
+  rip.common.Struct context = 2;
+}
+
+message ChildResponse {
+  string child_id = 1;
+}
+
+message GetRequest {
+  string namespace = 1;
+  string key = 2;
+}
+
+message GetResponse {
+  rip.common.Value value = 1;
+  bool found = 2;
+}
+
+message SetRequest {
+  string namespace = 1;
+  string key = 2;
+  rip.common.Value value = 3;
+  int64 ttl_ms = 4;
+}
+
+message SetResponse {
+  bool success = 1;
+}
+
+message DeleteRequest {
+  string namespace = 1;
+  string key = 2;
+}
+
+message DeleteResponse {
+  bool success = 1;
+}
+
+message ClearRequest {
+  string namespace = 1;
+}
+
+message ClearResponse {
+  int32 cleared_count = 1;
+}
+
+message NamespaceRequest {
+  string namespace = 1;
+}
+
+message NamespaceResponse {
+  string namespace = 1;
+  int32 size = 2;
+}
+
+message IndexRequest {
+  string index = 1;
+  string id = 2;
+  rip.common.Struct document = 3;
+}
+
+message IndexResponse {
+  bool success = 1;
+}
+
+message SearchRequest {
+  string index = 1;
+  string query = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+  rip.common.Struct filters = 5;
+}
+
+message SearchResponse {
+  repeated SearchResult results = 1;
+  int32 total = 2;
+}
+
+message SearchResult {
+  string id = 1;
+  double score = 2;
+  rip.common.Struct document = 3;
+}
+
+message RemoveRequest {
+  string index = 1;
+  string id = 2;
+}
+
+message RemoveResponse {
+  bool success = 1;
+}
+
+message GetConfigRequest {
+  string key = 1;
+}
+
+message GetConfigResponse {
+  rip.common.Value value = 1;
+  bool found = 2;
+}
+
+message SetConfigRequest {
+  string key = 1;
+  rip.common.Value value = 2;
+}
+
+message SetConfigResponse {
+  bool success = 1;
+}
+
+message WatchConfigRequest {
+  string prefix = 1;
+}
+
+message ConfigChangeEvent {
+  string key = 1;
+  rip.common.Value old_value = 2;
+  rip.common.Value new_value = 3;
+  string operation = 4;
+}
+
+message GetPluginConfigRequest {
+  string plugin_id = 1;
+}
+
+message GetPluginConfigResponse {
+  rip.common.Struct config = 1;
+}
+
+message VerifyTokenRequest {
+  string token = 1;
+}
+
+message VerifyTokenResponse {
+  bool valid = 1;
+  string user_id = 2;
+  repeated string roles = 3;
+  int64 expires_at = 4;
+}
+
+message IssueTokenRequest {
+  string user_id = 1;
+  repeated string roles = 2;
+  int64 ttl_ms = 3;
+}
+
+message IssueTokenResponse {
+  string token = 1;
+}
+
+message CheckPermissionRequest {
+  string user_id = 1;
+  string permission = 2;
+  string resource = 3;
+}
+
+message CheckPermissionResponse {
+  bool allowed = 1;
+}
+
+message ReadRequest {
+  string path = 1;
+}
+
+message ReadResponse {
+  bytes data = 1;
+  bool exists = 2;
+}
+
+message WriteRequest {
+  string path = 1;
+  bytes data = 2;
+  bool overwrite = 3;
+}
+
+message WriteResponse {
+  bool success = 1;
+}
+
+message ListRequest {
+  string path = 1;
+  bool recursive = 2;
+}
+
+message ListResponse {
+  repeated string paths = 1;
+}
+
+message DeleteRequest {
+  string path = 1;
+}
+
+message DeleteResponse {
+  bool success = 1;
+}
+
+message ExistsRequest {
+  string path = 1;
+}
+
+message ExistsResponse {
+  bool exists = 1;
+}
+
+message ValidateRequest {
+  string schema = 1;
+  rip.common.Value data = 2;
+}
+
+message ValidateResponse {
+  bool valid = 1;
+  repeated rip.common.Error errors = 2;
+}
+
+message GetSchemaRequest {
+  string name = 1;
+}
+
+message GetSchemaResponse {
+  string schema = 1;
+}
+
+message GenerateRequest {
+  string template = 1;
+  rip.common.Struct data = 2;
+  string format = 3;
+}
+
+message GenerateResponse {
+  string content = 1;
+}
+
+message GenerateChunk {
+  string chunk = 1;
+  bool is_final = 2;
+}
+
+message MigrateRequest {
+  string from_version = 1;
+  string to_version = 2;
+  rip.common.Struct data = 3;
+}
+
+message MigrateResponse {
+  rip.common.Struct data = 1;
+}
+
+message CheckVersionRequest {
+  string current = 1;
+  string required = 2;
+}
+
+message CheckVersionResponse {
+  bool compatible = 1;
+  string message = 2;
+}
+
+message RenderTemplateRequest {
+  string template = 1;
+  rip.common.Struct data = 2;
+}
+
+message RenderTemplateResponse {
+  string rendered = 1;
+}
+
+message GetTemplatesRequest {
+  string category = 1;
+}
+
+message GetTemplatesResponse {
+  repeated string templates = 1;
+}

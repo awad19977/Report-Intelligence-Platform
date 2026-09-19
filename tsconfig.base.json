@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "baseUrl": ".",
+    "paths": {
+      "@rip/core": ["packages/core/src/index.ts"],
+      "@rip/crystal-client": ["packages/crystal-client/src/index.ts"],
+      "@rip/plugin-api": ["packages/plugin-api/src/index.ts"],
+      "@rip/grpc-transport": ["packages/grpc-transport/src/index.ts"],
+      "@rip/sdk": ["packages/sdk/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "workers", "**/*.test.ts"]
+}

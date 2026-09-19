@@ -1,0 +1,75 @@
+# Package managers and dependencies
+node_modules/
+.pnp
+.pnp.*
+.npm/
+.yarn/
+
+# Compiled output
+dist/
+build/
+out/
+lib/
+bin/
+obj/
+*.tsbuildinfo
+
+# Test and tool output
+coverage/
+.nyc_output/
+.vitest/
+**/.vite/
+test-results/
+playwright-report/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+*.pfx
+*.p12
+*.snk
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.vs/
+*.suo
+*.user
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files and package artifacts
+.cache/
+.npm-cache/
+.npm-pack-cache/
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+*.tgz
+
+# Crystal report binaries are private by default. Only reviewed fixtures may be committed.
+*.rpt
+*.rpt~
+!tests/fixtures/crystal/*.rpt
+
+# Proprietary implementation belongs in the sibling commercial repository.
+commercial-export/
+packages/crystal-plugin/
+workers/crystal-worker/

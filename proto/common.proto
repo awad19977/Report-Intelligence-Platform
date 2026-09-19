@@ -1,0 +1,42 @@
+syntax = "proto3";
+package rip.common;
+
+message Error {
+  string code = 1;
+  string message = 2;
+  string stack = 3;
+}
+
+message Value {
+  oneof kind {
+    string string_value = 1;
+    double number_value = 2;
+    bool bool_value = 3;
+    Struct struct_value = 4;
+    ListValue list_value = 5;
+    bytes bytes_value = 6;
+  }
+}
+
+message Struct {
+  map<string, Value> fields = 1;
+}
+
+message ListValue {
+  repeated Value values = 1;
+}
+
+message Pagination {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message TimeRange {
+  int64 start_ms = 1;
+  int64 end_ms = 2;
+}
+
+message PluginConfig {
+  string plugin_id = 1;
+  Struct config = 2;
+}

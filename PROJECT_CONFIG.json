@@ -1,0 +1,96 @@
+{
+  "project": "report-intelligence-platform",
+  "version": "0.1.0",
+  "activeMilestone": "crystal-mcp-v1-read-report",
+  "planningAuthority": "CRYSTAL_MCP_V1_PLAN.md",
+  "licenses": {
+    "publicCore": "GPL-3.0-only",
+    "commercialImplementations": "PROPRIETARY"
+  },
+  "architecture": {
+    "hostRuntime": "nodejs-typescript",
+    "mcpTransport": "stdio",
+    "crystalExecution": "windows-worker",
+    "localWorkerTransport": "stdio",
+    "remoteWorkerTransport": "deferred-grpc",
+    "reportModel": "crystal-shaped-v1",
+    "universalReportIR": "deferred-until-multi-engine",
+    "pluginProcessManager": "deferred",
+    "workerPooling": "deferred",
+    "crossPlatformHost": true,
+    "directCrystalOperationsRequireWindows": true
+  },
+  "repositories": {
+    "separationStatus": "complete",
+    "public": {
+      "name": "report-intelligence-platform",
+      "license": "GPL-3.0-only",
+      "contents": [
+        "mcp-server",
+        "cli",
+        "core-models",
+        "plugin-api",
+        "public-sdk",
+        "crystal-client-sdk",
+        "worker-protocol",
+        "documentation",
+        "examples"
+      ]
+    },
+    "commercial": {
+      "name": "report-intelligence-commercial",
+      "license": "PROPRIETARY",
+      "contents": [
+        "crystal-runtime-adapter",
+        "production-crystal-worker",
+        "advanced-editing",
+        "report-generation",
+        "advanced-validation",
+        "enterprise-features"
+      ]
+    }
+  },
+  "milestones": [
+    {
+      "id": 0,
+      "name": "Planning Alignment",
+      "status": "complete"
+    },
+    {
+      "id": 1,
+      "name": "read_report Vertical Slice",
+      "status": "in-progress"
+    },
+    {
+      "id": 2,
+      "name": "Read-Only Extraction",
+      "status": "planned"
+    },
+    {
+      "id": 3,
+      "name": "Documentation, Dependencies, and Search",
+      "status": "planned"
+    },
+    {
+      "id": 4,
+      "name": "Setup and Remote Workers",
+      "status": "planned"
+    },
+    {
+      "id": 5,
+      "name": "Safe Editing",
+      "status": "future"
+    },
+    {
+      "id": 6,
+      "name": "Template-Based Generation",
+      "status": "future"
+    },
+    {
+      "id": 7,
+      "name": "Multi-Engine Platform and Report IR",
+      "status": "deferred"
+    }
+  ],
+  "nextTask": "Provide a sanitized .rpt fixture and confirm Crystal licensing status, then run the real end-to-end read_report test with before/after hashes"
+}

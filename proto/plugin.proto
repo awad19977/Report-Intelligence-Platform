@@ -1,0 +1,127 @@
+syntax = "proto3";
+package rip.plugin;
+
+import "common.proto";
+
+service PluginHost {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Configure(ConfigRequest) returns (ConfigResponse);
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
+  rpc Shutdown(ShutdownRequest) returns (ShutdownResponse);
+  rpc GetService(ServiceRequest) returns (ServiceResponse);
+}
+
+service Plugin {
+  rpc Execute(ExecuteRequest) returns (ExecuteResponse);
+  rpc ExecuteStream(ExecuteRequest) returns (stream StreamChunk);
+  rpc GetManifest(GetManifestRequest) returns (PluginManifest);
+  rpc GetCapabilities(CapabilitiesRequest) returns (CapabilitiesResponse);
+  rpc CallService(ServiceCallRequest) returns (ServiceCallResponse);
+}
+
+message PluginManifest {
+  string id = 1;
+  string name = 2;
+  string version = 3;
+  repeated string supported_formats = 4;
+  repeated string capabilities = 5;
+  string min_platform_version = 6;
+  string max_platform_version = 7;
+  repeated string dependencies = 8;
+}
+
+message RegisterRequest {
+  PluginManifest manifest = 1;
+  string endpoint = 2;
+}
+
+message RegisterResponse {
+  bool success = 1;
+  string plugin_id = 2;
+  rip.common.Error error = 3;
+  rip.common.Value config = 4;
+}
+
+message ConfigRequest {
+  string plugin_id = 1;
+  rip.common.PluginConfig config = 2;
+}
+
+message ConfigResponse {
+  bool success = 1;
+  rip.common.Error error = 2;
+}
+
+message HeartbeatRequest {
+  string plugin_id = 1;
+  int64 timestamp_ms = 2;
+}
+
+message HeartbeatResponse {
+  bool acknowledged = 1;
+  int64 server_time_ms = 2;
+}
+
+message ShutdownRequest {
+  string plugin_id = 1;
+  string reason = 2;
+}
+
+message ShutdownResponse {
+  bool success = 1;
+  rip.common.Error error = 2;
+}
+
+message ExecuteRequest {
+  string id = 1;
+  string command = 2;
+  repeated rip.common.Value args = 3;
+  int32 timeout_ms = 4;
+}
+
+message ExecuteResponse {
+  string id = 1;
+  rip.common.Value result = 2;
+  rip.common.Error error = 3;
+}
+
+message StreamChunk {
+  string id = 1;
+  int32 chunk_index = 2;
+  int32 total_chunks = 3;
+  bytes data = 4;
+  bool is_final = 5;
+}
+
+message GetManifestRequest {
+  string plugin_id = 1;
+}
+
+message CapabilitiesRequest {
+  string plugin_id = 1;
+}
+
+message CapabilitiesResponse {
+  repeated string capabilities = 1;
+  rip.common.Error error = 2;
+}
+
+message ServiceCallRequest {
+  string service = 1;
+  string method = 2;
+  rip.common.Value args = 3;
+}
+
+message ServiceCallResponse {
+  rip.common.Value result = 1;
+  rip.common.Error error = 2;
+}
+
+message ServiceRequest {
+  string service = 1;
+}
+
+message ServiceResponse {
+  string endpoint = 1;
+  rip.common.Error error = 2;
+}

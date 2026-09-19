@@ -1,0 +1,32 @@
+{
+  "name": "@rip/mcp-server",
+  "version": "0.1.0",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "main": "./dist/index.js",
+  "files": ["dist", "LICENSE"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "start": "node dist/index.js",
+    "pretest": "npm run build --workspace=@rip/crystal-client && npm run build",
+    "test": "vitest run",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@rip/core": "^0.1.0",
+    "@rip/crystal-client": "^0.1.0",
+    "@rip/plugin-api": "^0.1.0",
+    "zod": "^3.22.0",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "vitest": "^4.1.11"
+  }
+}

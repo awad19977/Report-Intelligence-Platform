@@ -1,0 +1,50 @@
+syntax = "proto3";
+package rip.worker;
+
+import "common.proto";
+
+service CrystalWorker {
+  rpc Execute(ExecuteRequest) returns (ExecuteResponse);
+  rpc ExecuteStream(ExecuteRequest) returns (stream StreamChunk);
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc GetCapabilities(CapabilitiesRequest) returns (WorkerCapabilities);
+}
+
+message ExecuteRequest {
+  string id = 1;
+  string command = 2;
+  repeated rip.common.Value args = 3;
+  int32 timeout_ms = 4;
+}
+
+message ExecuteResponse {
+  string id = 1;
+  rip.common.Value result = 2;
+  rip.common.Error error = 3;
+}
+
+message StreamChunk {
+  string id = 1;
+  int32 chunk_index = 2;
+  int32 total_chunks = 3;
+  bytes data = 4;
+  bool is_final = 5;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool healthy = 1;
+  string version = 2;
+  int64 uptime_ms = 3;
+  int32 active_reports = 4;
+  int64 memory_bytes = 5;
+}
+
+message CapabilitiesRequest {}
+
+message WorkerCapabilities {
+  repeated string commands = 1;
+  int32 max_concurrent = 2;
+  bool streaming_supported = 3;
+}
