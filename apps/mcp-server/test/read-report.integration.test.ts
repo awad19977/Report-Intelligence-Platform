@@ -60,6 +60,131 @@ describe("read_report MCP vertical slice", () => {
     }
   });
 
+  it("advertises read_metadata and returns only validated metadata", async () => {
+    const reportRoot = await mkdtemp(path.join(tmpdir(), "rip-metadata-test-"));
+    temporaryDirectories.push(reportRoot);
+    const reportPath = path.join(reportRoot, "sample.rpt");
+    await writeFile(reportPath, "mock report fixture");
+
+    const transport = new StdioClientTransport({
+      command: process.execPath,
+      args: [serverEntry],
+      cwd: path.resolve(appRoot, "../.."),
+      env: {
+        ...process.env,
+        CRYSTAL_WORKER_PATH: process.execPath,
+        CRYSTAL_WORKER_ARGS: JSON.stringify([mockWorker]),
+        RIP_ALLOWED_REPORT_ROOTS: reportRoot,
+        LOG_LEVEL: "error",
+      } as Record<string, string>,
+      stderr: "pipe",
+    });
+    const client = new Client({ name: "rip-integration-test", version: "0.1.0" });
+
+    try {
+      await client.connect(transport);
+      const tools = await client.listTools();
+      expect(tools.tools.map((tool) => tool.name)).toContain("read_metadata");
+
+      const result = await client.callTool({ name: "read_metadata", arguments: { filePath: reportPath } });
+      expect(result.isError).not.toBe(true);
+      const content = result.content[0];
+      if (content?.type !== "text") throw new Error("Expected a text MCP result");
+      const metadata = JSON.parse(content.text) as Record<string, unknown>;
+      expect(metadata).toMatchObject({
+        title: "Sample",
+        author: "Test",
+        savedData: false,
+        pageSize: { width: 8.5, height: 11 },
+      });
+      expect(metadata).not.toHaveProperty("dataSources");
+    } finally {
+      await client.close();
+    }
+  });
+
+  it("advertises read_data_sources and redacts connection secrets", async () => {
+    const reportRoot = await mkdtemp(path.join(tmpdir(), "rip-data-sources-test-"));
+    temporaryDirectories.push(reportRoot);
+    const reportPath = path.join(reportRoot, "sample.rpt");
+    await writeFile(reportPath, "mock report fixture");
+
+    const transport = new StdioClientTransport({
+      command: process.execPath,
+      args: [serverEntry],
+      cwd: path.resolve(appRoot, "../.."),
+      env: {
+        ...process.env,
+        CRYSTAL_WORKER_PATH: process.execPath,
+        CRYSTAL_WORKER_ARGS: JSON.stringify([mockWorker]),
+        RIP_ALLOWED_REPORT_ROOTS: reportRoot,
+        LOG_LEVEL: "error",
+      } as Record<string, string>,
+      stderr: "pipe",
+    });
+    const client = new Client({ name: "rip-integration-test", version: "0.1.0" });
+
+    try {
+      await client.connect(transport);
+      const tools = await client.listTools();
+      expect(tools.tools.map((tool) => tool.name)).toContain("read_data_sources");
+
+      const result = await client.callTool({ name: "read_data_sources", arguments: { filePath: reportPath } });
+      expect(result.isError).not.toBe(true);
+      const content = result.content[0];
+      if (content?.type !== "text") throw new Error("Expected a text MCP result");
+      const dataSources = JSON.parse(content.text) as Array<Record<string, unknown>>;
+      expect(dataSources).toHaveLength(1);
+      expect(dataSources[0]).toMatchObject({
+        name: "Main",
+        type: "sql",
+        connectionString: "[REDACTED]",
+      });
+    } finally {
+      await client.close();
+    }
+  });
+
+  it("advertises extract_sql and returns SQL with its data source identity", async () => {
+    const reportRoot = await mkdtemp(path.join(tmpdir(), "rip-sql-test-"));
+    temporaryDirectories.push(reportRoot);
+    const reportPath = path.join(reportRoot, "sample.rpt");
+    await writeFile(reportPath, "mock report fixture");
+
+    const transport = new StdioClientTransport({
+      command: process.execPath,
+      args: [serverEntry],
+      cwd: path.resolve(appRoot, "../.."),
+      env: {
+        ...process.env,
+        CRYSTAL_WORKER_PATH: process.execPath,
+        CRYSTAL_WORKER_ARGS: JSON.stringify([mockWorker]),
+        RIP_ALLOWED_REPORT_ROOTS: reportRoot,
+        LOG_LEVEL: "error",
+      } as Record<string, string>,
+      stderr: "pipe",
+    });
+    const client = new Client({ name: "rip-integration-test", version: "0.1.0" });
+
+    try {
+      await client.connect(transport);
+      const tools = await client.listTools();
+      expect(tools.tools.map((tool) => tool.name)).toContain("extract_sql");
+
+      const result = await client.callTool({ name: "extract_sql", arguments: { filePath: reportPath } });
+      expect(result.isError).not.toBe(true);
+      const content = result.content[0];
+      if (content?.type !== "text") throw new Error("Expected a text MCP result");
+      expect(JSON.parse(content.text)).toEqual([{
+        dataSourceName: "Main",
+        dataSourceType: "sql",
+        commandText: "SELECT Id, Name FROM Patients WHERE VisitId = {?VisitId}",
+      }]);
+    } finally {
+      await client.close();
+    }
+  });
+
   it("rejects reports outside configured roots before calling the worker", async () => {
     const reportRoot = await mkdtemp(path.join(tmpdir(), "rip-allowed-"));
     const outsideRoot = await mkdtemp(path.join(tmpdir(), "rip-outside-"));

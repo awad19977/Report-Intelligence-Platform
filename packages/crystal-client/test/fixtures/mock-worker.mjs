@@ -78,7 +78,7 @@ for await (const line of input) {
         connectionString: "Server=db;User Id=admin;Password=secret",
         tables: [],
         joins: [],
-        commandText: null,
+        commandText: "SELECT Id, Name FROM Patients WHERE VisitId = {?VisitId}",
         parameters: [],
       }],
       formulas: [],

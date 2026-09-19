@@ -118,23 +118,23 @@ See [LICENSING.md](LICENSING.md) for the implemented public/commercial source bo
 
 ## MCP Tools
 
-The MCP server currently advertises this tested tool:
+The MCP server currently advertises these tested tools:
 
 ### Available
 - `read_report` - Read full report structure
+- `read_metadata` - Read validated report metadata and page settings
+- `read_data_sources` - Read validated data sources, tables, fields, joins, and commands
+- `extract_sql` - Extract non-empty SQL commands with their data source identity
 
 The following capabilities are planned and will be advertised only after their worker-backed implementations meet the same validation and error-handling standard:
 
 ### Planned read operations
-- `read_metadata` - Read report metadata
 - `read_formulas` - List all formulas
 - `read_parameters` - List all parameters
 - `read_sections` - List all sections
-- `read_data_sources` - List data sources
 - `read_objects` - List report objects
 - `read_subreports` - List subreports
 - `read_running_totals` - List running totals
-- `extract_sql` - Extract SQL queries
 
 ### Search Operations
 - `search_reports` - Search across multiple reports

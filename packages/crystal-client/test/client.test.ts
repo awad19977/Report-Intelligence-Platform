@@ -28,6 +28,50 @@ describe("CrystalWorkerClient", () => {
     await client.disconnect();
   });
 
+  it("projects metadata from the validated read_report response", async () => {
+    const client = createClient();
+    await client.connect();
+
+    const metadata = await client.readMetadata("C:/reports/sample.rpt");
+
+    expect(metadata).toMatchObject({
+      title: "Sample",
+      author: "Test",
+      savedData: false,
+      pageSize: { width: 8.5, height: 11 },
+    });
+    await client.disconnect();
+  });
+
+  it("projects data sources from the validated read_report response", async () => {
+    const client = createClient();
+    await client.connect();
+
+    const dataSources = await client.readDataSources("C:/reports/sample.rpt");
+
+    expect(dataSources).toHaveLength(1);
+    expect(dataSources[0]).toMatchObject({
+      name: "Main",
+      type: "sql",
+      connectionString: "Server=db;User Id=admin;Password=secret",
+    });
+    await client.disconnect();
+  });
+
+  it("extracts non-empty SQL commands with their data source identity", async () => {
+    const client = createClient();
+    await client.connect();
+
+    const queries = await client.extractSql("C:/reports/sample.rpt");
+
+    expect(queries).toEqual([{
+      dataSourceName: "Main",
+      dataSourceType: "sql",
+      commandText: "SELECT Id, Name FROM Patients WHERE VisitId = {?VisitId}",
+    }]);
+    await client.disconnect();
+  });
+
   it("redacts secret-bearing fields recursively", () => {
     const value = redactSecrets({
       connectionString: "Server=db;Password=secret",

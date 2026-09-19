@@ -64,9 +64,9 @@
 
 ## Milestone 2: Read-only extraction
 
-- [ ] `read_metadata`
-- [ ] `read_data_sources`
-- [ ] `extract_sql`
+- [x] `read_metadata`
+- [x] `read_data_sources`
+- [x] `extract_sql`
 - [ ] `read_parameters`
 - [ ] `read_formulas`
 - [ ] `read_sections`
@@ -106,4 +106,4 @@
 
 ## Current next task
 
-Provide a sanitized `.rpt` fixture and confirm the Windows host's Crystal licensing status, then run the real end-to-end `read_report` test with before/after file hashes.
+Provide a sanitized `.rpt` fixture and confirm the Windows host's Crystal licensing status, then run the real end-to-end `read_report` test with before/after file hashes. In parallel, continue Milestone 2 with `read_parameters` using the validated `read_report` path.

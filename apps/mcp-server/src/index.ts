@@ -32,6 +32,18 @@ const ReadReportInputSchema = z.object({
   includeSubreports: z.boolean().optional(),
 });
 
+const ReadMetadataInputSchema = z.object({
+  filePath: z.string().trim().min(1),
+});
+
+const ReadDataSourcesInputSchema = z.object({
+  filePath: z.string().trim().min(1),
+});
+
+const ExtractSqlInputSchema = z.object({
+  filePath: z.string().trim().min(1),
+});
+
 interface ServerConfig {
   allowedReportRoots: string[];
   maxReportBytes: number;
@@ -67,15 +79,89 @@ function createServer(worker: CrystalWorkerClient, config: ServerConfig): Server
           required: ["filePath"],
         },
       },
+      {
+        name: "read_metadata",
+        description: "Read validated metadata and page settings from a Crystal Report file",
+        inputSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            filePath: { type: "string", description: "Path to the .rpt file" },
+          },
+          required: ["filePath"],
+        },
+      },
+      {
+        name: "read_data_sources",
+        description: "Read validated data sources, tables, fields, joins, and commands from a Crystal Report file",
+        inputSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            filePath: { type: "string", description: "Path to the .rpt file" },
+          },
+          required: ["filePath"],
+        },
+      },
+      {
+        name: "extract_sql",
+        description: "Extract validated SQL command text with its data source identity from a Crystal Report file",
+        inputSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            filePath: { type: "string", description: "Path to the .rpt file" },
+          },
+          required: ["filePath"],
+        },
+      },
     ],
   }));
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    if (request.params.name !== "read_report") {
+    if (
+      request.params.name !== "read_report"
+      && request.params.name !== "read_metadata"
+      && request.params.name !== "read_data_sources"
+      && request.params.name !== "extract_sql"
+    ) {
       return toolFailure("UNSUPPORTED_FEATURE", `Tool '${request.params.name}' is not available in this milestone`);
     }
 
     try {
+      if (request.params.name === "extract_sql") {
+        const input = ExtractSqlInputSchema.parse(request.params.arguments ?? {});
+        const filePath = await authorizeReportPath(input.filePath, config);
+
+        logger.info("Extracting Crystal report SQL", { filePath });
+        const queries = redactSecrets(await worker.extractSql(filePath));
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(queries, null, 2) }],
+        };
+      }
+
+      if (request.params.name === "read_data_sources") {
+        const input = ReadDataSourcesInputSchema.parse(request.params.arguments ?? {});
+        const filePath = await authorizeReportPath(input.filePath, config);
+
+        logger.info("Reading Crystal report data sources", { filePath });
+        const dataSources = redactSecrets(await worker.readDataSources(filePath));
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(dataSources, null, 2) }],
+        };
+      }
+
+      if (request.params.name === "read_metadata") {
+        const input = ReadMetadataInputSchema.parse(request.params.arguments ?? {});
+        const filePath = await authorizeReportPath(input.filePath, config);
+
+        logger.info("Reading Crystal report metadata", { filePath });
+        const metadata = redactSecrets(await worker.readMetadata(filePath));
+        return {
+          content: [{ type: "text" as const, text: JSON.stringify(metadata, null, 2) }],
+        };
+      }
+
       const input = ReadReportInputSchema.parse(request.params.arguments ?? {});
       const filePath = await authorizeReportPath(input.filePath, config);
       const options = CrystalReadOptionsSchema.parse({

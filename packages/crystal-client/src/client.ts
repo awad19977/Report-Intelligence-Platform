@@ -15,8 +15,12 @@ import {
 import {
   CrystalReadOptionsSchema,
   CrystalReportSchema,
+  CrystalSqlQuerySchema,
+  type CrystalDataSource,
   type CrystalReadOptions,
   type CrystalReport,
+  type CrystalReportMetadata,
+  type CrystalSqlQuery,
 } from "./report.js";
 
 export interface CrystalWorkerClientLogger {
@@ -155,6 +159,37 @@ export class CrystalWorkerClient extends EventEmitter {
   async readReport(filePath: string, options: CrystalReadOptions = {}): Promise<CrystalReport> {
     const parsedOptions = CrystalReadOptionsSchema.parse(options);
     return this.request("read_report", [filePath, parsedOptions], CrystalReportSchema);
+  }
+
+  async readMetadata(filePath: string): Promise<CrystalReportMetadata> {
+    const report = await this.readReport(filePath, {
+      includeSavedData: false,
+      includeFormatting: false,
+      includeSubreports: false,
+    });
+    return report.metadata;
+  }
+
+  async readDataSources(filePath: string): Promise<CrystalDataSource[]> {
+    const report = await this.readReport(filePath, {
+      includeSavedData: false,
+      includeFormatting: false,
+      includeSubreports: false,
+    });
+    return report.dataSources;
+  }
+
+  async extractSql(filePath: string): Promise<CrystalSqlQuery[]> {
+    const dataSources = await this.readDataSources(filePath);
+    return dataSources.flatMap((dataSource) => {
+      const commandText = dataSource.commandText?.trim();
+      if (!commandText) return [];
+      return [CrystalSqlQuerySchema.parse({
+        dataSourceName: dataSource.name,
+        dataSourceType: dataSource.type,
+        commandText,
+      })];
+    });
   }
 
   async request<T>(

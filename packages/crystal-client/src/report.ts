@@ -96,6 +96,12 @@ export const CrystalDataSourceSchema = z.object({
   parameters: z.array(CrystalParameterSchema),
 }).passthrough();
 
+export const CrystalSqlQuerySchema = z.object({
+  dataSourceName: z.string(),
+  dataSourceType: z.string(),
+  commandText: z.string().min(1),
+});
+
 const CrystalSubreportSchema = z.object({
   name: z.string(),
   reportName: z.string(),
@@ -124,27 +130,29 @@ const CrystalCustomFunctionSchema = z.object({
   language: z.string(),
 }).passthrough();
 
+export const CrystalReportMetadataSchema = z.object({
+  title: NullableString,
+  subject: NullableString,
+  author: NullableString,
+  keywords: NullableString,
+  comments: NullableString,
+  createdDate: NullableString,
+  modifiedDate: NullableString,
+  savedData: z.boolean(),
+  pageSize: z.object({ width: z.number(), height: z.number() }).nullable().optional(),
+  margins: z.object({
+    left: z.number(),
+    right: z.number(),
+    top: z.number(),
+    bottom: z.number(),
+  }).nullable().optional(),
+}).passthrough();
+
 export const CrystalReportSchema = z.object({
   format: z.literal("crystal"),
   filePath: z.string(),
   fileName: z.string(),
-  metadata: z.object({
-    title: NullableString,
-    subject: NullableString,
-    author: NullableString,
-    keywords: NullableString,
-    comments: NullableString,
-    createdDate: NullableString,
-    modifiedDate: NullableString,
-    savedData: z.boolean(),
-    pageSize: z.object({ width: z.number(), height: z.number() }).nullable().optional(),
-    margins: z.object({
-      left: z.number(),
-      right: z.number(),
-      top: z.number(),
-      bottom: z.number(),
-    }).nullable().optional(),
-  }).passthrough(),
+  metadata: CrystalReportMetadataSchema,
   dataSources: z.array(CrystalDataSourceSchema),
   formulas: z.array(CrystalFormulaSchema),
   parameters: z.array(CrystalParameterSchema),
@@ -161,6 +169,9 @@ export const CrystalReadOptionsSchema = z.object({
 });
 
 export type CrystalReport = z.infer<typeof CrystalReportSchema>;
+export type CrystalReportMetadata = z.infer<typeof CrystalReportMetadataSchema>;
+export type CrystalDataSource = z.infer<typeof CrystalDataSourceSchema>;
+export type CrystalSqlQuery = z.infer<typeof CrystalSqlQuerySchema>;
 export type CrystalReadOptions = z.input<typeof CrystalReadOptionsSchema>;
 
 const SENSITIVE_KEY = /(?:password|passwd|pwd|credential|secret|token|user(?:name|id)?|connectionString)/i;
