@@ -69,7 +69,7 @@ temp/
 *.rpt~
 !tests/fixtures/crystal/*.rpt
 
-# Proprietary implementation belongs in the sibling commercial repository.
+# Proprietary implementation belongs in the other repository.
 commercial-export/
 packages/crystal-plugin/
 workers/crystal-worker/
