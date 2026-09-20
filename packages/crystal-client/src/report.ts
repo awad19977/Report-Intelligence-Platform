@@ -38,7 +38,7 @@ export const CrystalSectionSchema = z.object({
 
 export const CrystalFormulaSchema = z.object({
   name: z.string(),
-  syntax: z.string(),
+  syntax: NullableString,
   evaluationTime: z.string(),
   isGlobal: z.boolean(),
   isShared: z.boolean(),
@@ -73,6 +73,7 @@ const CrystalFieldSchema = z.object({
 const CrystalTableSchema = z.object({
   name: z.string(),
   alias: NullableString,
+  qualifiedName: NullableString,
   fields: z.array(CrystalFieldSchema),
   location: NullableString,
 }).passthrough();
@@ -93,6 +94,7 @@ export const CrystalDataSourceSchema = z.object({
   tables: z.array(CrystalTableSchema),
   joins: z.array(CrystalJoinSchema),
   commandText: NullableString,
+  procedureName: NullableString,
   parameters: z.array(CrystalParameterSchema),
 }).passthrough();
 
@@ -102,17 +104,7 @@ export const CrystalSqlQuerySchema = z.object({
   commandText: z.string().min(1),
 });
 
-const CrystalSubreportSchema = z.object({
-  name: z.string(),
-  reportName: z.string(),
-  linkFields: z.array(z.object({
-    mainReportField: z.string(),
-    subreportField: z.string(),
-  }).passthrough()),
-  isOnDemand: z.boolean(),
-}).passthrough();
-
-const CrystalRunningTotalSchema = z.object({
+export const CrystalRunningTotalSchema = z.object({
   name: z.string(),
   field: z.string(),
   type: z.string(),
@@ -148,6 +140,24 @@ export const CrystalReportMetadataSchema = z.object({
   }).nullable().optional(),
 }).passthrough();
 
+export const CrystalSubreportSchema = z.object({
+  name: z.string(),
+  reportName: z.string(),
+  linkFields: z.array(z.object({
+    mainReportField: z.string(),
+    subreportField: z.string(),
+    linkedParameterName: NullableString,
+  }).passthrough()),
+  isOnDemand: z.boolean(),
+  metadata: CrystalReportMetadataSchema.optional(),
+  dataSources: z.array(CrystalDataSourceSchema).optional(),
+  formulas: z.array(CrystalFormulaSchema).optional(),
+  parameters: z.array(CrystalParameterSchema).optional(),
+  sections: z.array(CrystalSectionSchema).optional(),
+  runningTotals: z.array(CrystalRunningTotalSchema).optional(),
+  customFunctions: z.array(CrystalCustomFunctionSchema).optional(),
+}).passthrough();
+
 export const CrystalReportSchema = z.object({
   format: z.literal("crystal"),
   filePath: z.string(),
@@ -172,9 +182,16 @@ export type CrystalReport = z.infer<typeof CrystalReportSchema>;
 export type CrystalReportMetadata = z.infer<typeof CrystalReportMetadataSchema>;
 export type CrystalDataSource = z.infer<typeof CrystalDataSourceSchema>;
 export type CrystalSqlQuery = z.infer<typeof CrystalSqlQuerySchema>;
+export type CrystalParameter = z.infer<typeof CrystalParameterSchema>;
+export type CrystalFormula = z.infer<typeof CrystalFormulaSchema>;
+export type CrystalSection = z.infer<typeof CrystalSectionSchema>;
+export type CrystalReportObject = z.infer<typeof CrystalReportObjectSchema>;
+export type CrystalSubreport = z.infer<typeof CrystalSubreportSchema>;
+export type CrystalRunningTotal = z.infer<typeof CrystalRunningTotalSchema>;
 export type CrystalReadOptions = z.input<typeof CrystalReadOptionsSchema>;
 
 const SENSITIVE_KEY = /(?:password|passwd|pwd|credential|secret|token|user(?:name|id)?|connectionString)/i;
+const PARAMETER_VALUE_KEY = /^(?:defaultValue|currentValue|value|values|valueList)$/i;
 
 export function redactSecrets<T>(value: T): T {
   if (Array.isArray(value)) {
@@ -182,9 +199,15 @@ export function redactSecrets<T>(value: T): T {
   }
 
   if (value !== null && typeof value === "object") {
+    const source = value as Record<string, unknown>;
     const redacted: Record<string, unknown> = {};
-    for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-      redacted[key] = SENSITIVE_KEY.test(key) && child != null
+    const hasSensitiveParameterName = typeof source["name"] === "string"
+      && SENSITIVE_KEY.test(source["name"]);
+    for (const [key, child] of Object.entries(source)) {
+      redacted[key] = child != null && (
+        SENSITIVE_KEY.test(key)
+        || (hasSensitiveParameterName && PARAMETER_VALUE_KEY.test(key))
+      )
         ? "[REDACTED]"
         : redactSecrets(child);
     }

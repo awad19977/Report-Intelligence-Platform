@@ -57,24 +57,29 @@
 - [x] Add a mock worker executable or fixture process.
 - [x] Add an MCP-to-mock-worker integration test.
 - [x] Add an opt-in real-worker integration test with before/after SHA-256 verification.
-- [!] Select a sanitized real `.rpt` fixture.
+- [~] Use `Orders10k.rpt` only for local real-worker testing; it is technically verified but unlicensed for redistribution and contains saved data. A sanitized replacement is planned.
 - [~] SAP Crystal 13 assemblies are installed; the worker builds and its real ready/health/shutdown handshake passes. Confirm the host's licensing status before fixture testing.
-- [!] Run an end-to-end real-report test.
-- [~] Hash is verified in the mock-worker integration test; repeat with the real `.rpt` fixture.
+- [x] Run all 10 advertised MCP read tools end to end against local-only `Orders10k.rpt`.
+- [x] Verify the real fixture's SHA-256 before and after the MCP read, including failure paths.
+- [x] Run all 10 tools and projection-consistency checks against local-only `HIS_ClaimOfCustomerSummary.rpt`; preserve its redacted JSON under ignored `test-results/`.
 
 ## Milestone 2: Read-only extraction
 
 - [x] `read_metadata`
 - [x] `read_data_sources`
 - [x] `extract_sql`
-- [ ] `read_parameters`
-- [ ] `read_formulas`
-- [ ] `read_sections`
-- [ ] `read_objects`
-- [ ] `read_subreports`
-- [ ] `read_running_totals`
-- [ ] Explicit unsupported-feature warnings
-- [ ] Golden JSON tests for the required report matrix
+- [x] `read_parameters`
+- [x] `read_formulas`
+- [x] `read_sections`
+- [x] `read_objects`
+- [x] `read_subreports`
+- [x] `read_running_totals`
+- [x] Explicit unsupported-feature warnings
+- [x] Extract main-to-subreport link fields, including Crystal's linked parameter name.
+- [x] Populate formula field/formula references and typed dependency identifiers.
+- [x] Extract database table links and main-report custom functions.
+- [x] Emit path-specific warnings where the installed SDK cannot expose embedded-subreport custom functions.
+- [~] Golden JSON test covers the complete mock report and expected warnings; sanitized real-report matrix fixtures remain pending.
 
 ## Milestone 3: Intelligence layer
 
@@ -106,4 +111,4 @@
 
 ## Current next task
 
-Provide a sanitized `.rpt` fixture and confirm the Windows host's Crystal licensing status, then run the real end-to-end `read_report` test with before/after file hashes. In parallel, continue Milestone 2 with `read_parameters` using the validated `read_report` path.
+Build the deterministic dependency graph over the extracted formula, field, parameter, running-total, subreport-link, join, and custom-function metadata. Continue using the current reports for local integration testing only; when the planned sanitized report is available, approve and commit that replacement with its hash, expected warnings, and full redacted golden JSON.

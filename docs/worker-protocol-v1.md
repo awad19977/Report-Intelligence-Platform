@@ -39,6 +39,15 @@ The initial commands are:
 ```
 
 Warnings have a stable `code` and `message`, plus an optional `path` identifying the affected report element.
+Standalone warning envelopes that include a request `id` and warnings in the final success envelope are correlated with that request. The public client exposes warning-aware `*Result` methods returning `{ data, warnings }`; data-only methods remain available for compatibility. MCP tools return extracted data as the first text content item and, when warnings exist, a second JSON text item shaped as `{ "warnings": [...] }` so incomplete or unsupported extraction is never silent.
+
+Formula dependencies use stable prefixes: `field:`, `formula:`, `parameter:`, `runningTotal:`, and `sqlExpression:`. Subreport link fields include `mainReportField`, `subreportField`, and, when supplied by Crystal, `linkedParameterName`.
+
+The Crystal worker emits these capability-specific warnings when the installed SDK cannot expose a structure:
+
+- `UNSUPPORTED_DATABASE_JOINS`
+- `UNSUPPORTED_SUBREPORT_LINKS`
+- `UNSUPPORTED_CUSTOM_FUNCTIONS`
 
 ## Error envelope
 

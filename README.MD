@@ -38,7 +38,7 @@ report-intelligence-platform/
 
 ## Quick Start
 
-> **Milestone status:** The public MCP server now implements and tests the `read_report` vertical slice against a mock worker. A sanitized real `.rpt` fixture is still required for the real-runtime acceptance test. Other CLI and MCP capabilities remain planned unless stated otherwise.
+> **Milestone status:** The public MCP server implements all 10 advertised read tools and has been exercised locally through the separately licensed Crystal worker against multiple real reports. Mock integration coverage is committed; a sanitized, redistributable `.rpt` fixture is still required before the real-runtime acceptance matrix can run in public CI.
 
 ### Prerequisites
 
@@ -110,7 +110,7 @@ npx rip export report.rpt output.pdf -f pdf
 
 This project follows an **Open Core** model:
 
-- **Public Platform**: GNU General Public License v3.0 only (`GPL-3.0-only`)
+- **Public Platform**: GNU Lesser General Public License v3.0 only (`LGPL-3.0-only`)
 - **Crystal Reports Plugin**: Commercial (proprietary)
 - **Enterprise Features**: Commercial (proprietary)
 
@@ -125,16 +125,20 @@ The MCP server currently advertises these tested tools:
 - `read_metadata` - Read validated report metadata and page settings
 - `read_data_sources` - Read validated data sources, tables, fields, joins, and commands
 - `extract_sql` - Extract non-empty SQL commands with their data source identity
+- `read_parameters` - Read validated parameter definitions with sensitive values redacted
+- `read_formulas` - Read validated formulas and dependency references
+- `read_sections` - Read validated section layout settings and contained objects
+- `read_objects` - Read flattened validated objects with optional exact section filtering
+- `read_subreports` - Read validated subreports, embedded metadata/content, and main-to-subreport link fields
+- `read_running_totals` - Read validated running-total evaluation and reset definitions
+
+Successful tool calls return extracted data in the first text content item. When the worker reports incomplete or unsupported extraction, a second JSON text item contains structured `warnings` with stable codes, messages, and optional report-element paths.
+
+Formula dependencies are classified as fields, formulas, parameters, running totals, or SQL expressions. Database table links and report custom functions are included in the full report model; SDK limitations are surfaced with `UNSUPPORTED_DATABASE_JOINS`, `UNSUPPORTED_SUBREPORT_LINKS`, or `UNSUPPORTED_CUSTOM_FUNCTIONS` warnings.
 
 The following capabilities are planned and will be advertised only after their worker-backed implementations meet the same validation and error-handling standard:
 
 ### Planned read operations
-- `read_formulas` - List all formulas
-- `read_parameters` - List all parameters
-- `read_sections` - List all sections
-- `read_objects` - List report objects
-- `read_subreports` - List subreports
-- `read_running_totals` - List running totals
 
 ### Search Operations
 - `search_reports` - Search across multiple reports
@@ -231,4 +235,4 @@ The `00 Research/` directory contains comprehensive research on:
 
 ## License
 
-All project-owned source in this repository is licensed under GPL-3.0-only. The Crystal runtime adapter and Windows worker are distributed separately under commercial terms; see [LICENSING.md](LICENSING.md).
+All project-owned source in this repository is licensed under LGPL-3.0-only. Separate applications may use the public libraries under LGPL's linking terms without placing the entire application under LGPL. The Crystal runtime adapter and Windows worker are separate processes distributed under commercial terms; see [LICENSING.md](LICENSING.md).

@@ -4,7 +4,7 @@
   "activeMilestone": "crystal-mcp-v1-read-report",
   "planningAuthority": "CRYSTAL_MCP_V1_PLAN.md",
   "licenses": {
-    "publicCore": "GPL-3.0-only",
+    "publicCore": "LGPL-3.0-only",
     "commercialImplementations": "PROPRIETARY"
   },
   "architecture": {
@@ -24,7 +24,7 @@
     "separationStatus": "complete",
     "public": {
       "name": "report-intelligence-platform",
-      "license": "GPL-3.0-only",
+      "license": "LGPL-3.0-only",
       "contents": [
         "mcp-server",
         "cli",
@@ -64,7 +64,7 @@
     {
       "id": 2,
       "name": "Read-Only Extraction",
-      "status": "planned"
+      "status": "in-progress"
     },
     {
       "id": 3,
@@ -92,5 +92,5 @@
       "status": "deferred"
     }
   ],
-  "nextTask": "Provide a sanitized .rpt fixture and confirm Crystal licensing status, then run the real end-to-end read_report test with before/after hashes"
+  "nextTask": "Build the deterministic dependency graph from extracted formulas, fields, parameters, running totals, subreport links, joins, and custom functions while awaiting a sanitized real fixture"
 }

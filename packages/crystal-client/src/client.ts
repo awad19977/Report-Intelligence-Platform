@@ -17,10 +17,16 @@ import {
   CrystalReportSchema,
   CrystalSqlQuerySchema,
   type CrystalDataSource,
+  type CrystalFormula,
+  type CrystalParameter,
   type CrystalReadOptions,
   type CrystalReport,
   type CrystalReportMetadata,
+  type CrystalReportObject,
+  type CrystalRunningTotal,
+  type CrystalSection,
   type CrystalSqlQuery,
+  type CrystalSubreport,
 } from "./report.js";
 
 export interface CrystalWorkerClientLogger {
@@ -55,9 +61,10 @@ export class CrystalWorkerError extends Error {
 }
 
 interface PendingRequest {
-  resolve: (value: unknown) => void;
+  resolve: (value: unknown, warnings: WorkerWarning[]) => void;
   reject: (error: Error) => void;
   timer: NodeJS.Timeout;
+  warnings: WorkerWarning[];
 }
 
 interface StartupWaiter {
@@ -70,6 +77,11 @@ const DEFAULT_STARTUP_TIMEOUT_MS = 10_000;
 const DEFAULT_REQUEST_TIMEOUT_MS = 60_000;
 const DEFAULT_SHUTDOWN_TIMEOUT_MS = 3_000;
 const DEFAULT_MAX_MESSAGE_BYTES = 16 * 1024 * 1024;
+
+export interface CrystalWorkerResult<T> {
+  data: T;
+  warnings: WorkerWarning[];
+}
 
 export class CrystalWorkerClient extends EventEmitter {
   private process?: ChildProcessWithoutNullStreams;
@@ -157,31 +169,70 @@ export class CrystalWorkerClient extends EventEmitter {
   }
 
   async readReport(filePath: string, options: CrystalReadOptions = {}): Promise<CrystalReport> {
+    return (await this.readReportResult(filePath, options)).data;
+  }
+
+  async readReportResult(
+    filePath: string,
+    options: CrystalReadOptions = {},
+  ): Promise<CrystalWorkerResult<CrystalReport>> {
     const parsedOptions = CrystalReadOptionsSchema.parse(options);
-    return this.request("read_report", [filePath, parsedOptions], CrystalReportSchema);
+    const result = await this.requestWithWarnings("read_report", [filePath, parsedOptions], CrystalReportSchema);
+    const warnings = [...result.warnings];
+    const addFormulaWarnings = (
+      formulas: CrystalReport["formulas"],
+      pathPrefix: string,
+    ) => formulas.forEach((formula, index) => {
+      if (formula.syntax != null) return;
+      const path = `${pathPrefix}[${index}].syntax`;
+      if (warnings.some((warning) => warning.code === "INCOMPLETE_FORMULA_SYNTAX" && warning.path === path)) return;
+      warnings.push({
+        code: "INCOMPLETE_FORMULA_SYNTAX",
+        message: `Formula '${formula.name}' did not include readable syntax.`,
+        path,
+      });
+    });
+
+    addFormulaWarnings(result.data.formulas, "formulas");
+    result.data.subreports.forEach((subreport, index) => {
+      if (subreport.formulas) addFormulaWarnings(subreport.formulas, `subreports[${index}].formulas`);
+    });
+    return { data: result.data, warnings };
   }
 
   async readMetadata(filePath: string): Promise<CrystalReportMetadata> {
-    const report = await this.readReport(filePath, {
+    return (await this.readMetadataResult(filePath)).data;
+  }
+
+  async readMetadataResult(filePath: string): Promise<CrystalWorkerResult<CrystalReportMetadata>> {
+    const result = await this.readReportResult(filePath, {
       includeSavedData: false,
       includeFormatting: false,
       includeSubreports: false,
     });
-    return report.metadata;
+    return { data: result.data.metadata, warnings: result.warnings };
   }
 
   async readDataSources(filePath: string): Promise<CrystalDataSource[]> {
-    const report = await this.readReport(filePath, {
+    return (await this.readDataSourcesResult(filePath)).data;
+  }
+
+  async readDataSourcesResult(filePath: string): Promise<CrystalWorkerResult<CrystalDataSource[]>> {
+    const result = await this.readReportResult(filePath, {
       includeSavedData: false,
       includeFormatting: false,
       includeSubreports: false,
     });
-    return report.dataSources;
+    return { data: result.data.dataSources, warnings: result.warnings };
   }
 
   async extractSql(filePath: string): Promise<CrystalSqlQuery[]> {
-    const dataSources = await this.readDataSources(filePath);
-    return dataSources.flatMap((dataSource) => {
+    return (await this.extractSqlResult(filePath)).data;
+  }
+
+  async extractSqlResult(filePath: string): Promise<CrystalWorkerResult<CrystalSqlQuery[]>> {
+    const result = await this.readDataSourcesResult(filePath);
+    const data = result.data.flatMap((dataSource) => {
       const commandText = dataSource.commandText?.trim();
       if (!commandText) return [];
       return [CrystalSqlQuerySchema.parse({
@@ -190,6 +241,87 @@ export class CrystalWorkerClient extends EventEmitter {
         commandText,
       })];
     });
+    return { data, warnings: result.warnings };
+  }
+
+  async readParameters(filePath: string): Promise<CrystalParameter[]> {
+    return (await this.readParametersResult(filePath)).data;
+  }
+
+  async readParametersResult(filePath: string): Promise<CrystalWorkerResult<CrystalParameter[]>> {
+    const result = await this.readReportResult(filePath, {
+      includeSavedData: false,
+      includeFormatting: false,
+      includeSubreports: true,
+    });
+    return { data: result.data.parameters, warnings: result.warnings };
+  }
+
+  async readFormulas(filePath: string): Promise<CrystalFormula[]> {
+    return (await this.readFormulasResult(filePath)).data;
+  }
+
+  async readFormulasResult(filePath: string): Promise<CrystalWorkerResult<CrystalFormula[]>> {
+    const result = await this.readReportResult(filePath, {
+      includeSavedData: false,
+      includeFormatting: false,
+      includeSubreports: true,
+    });
+    return { data: result.data.formulas, warnings: result.warnings };
+  }
+
+  async readSections(filePath: string): Promise<CrystalSection[]> {
+    return (await this.readSectionsResult(filePath)).data;
+  }
+
+  async readSectionsResult(filePath: string): Promise<CrystalWorkerResult<CrystalSection[]>> {
+    const result = await this.readReportResult(filePath, {
+      includeSavedData: false,
+      includeFormatting: true,
+      includeSubreports: true,
+    });
+    return { data: result.data.sections, warnings: result.warnings };
+  }
+
+  async readObjects(filePath: string, sectionName?: string): Promise<CrystalReportObject[]> {
+    return (await this.readObjectsResult(filePath, sectionName)).data;
+  }
+
+  async readObjectsResult(
+    filePath: string,
+    sectionName?: string,
+  ): Promise<CrystalWorkerResult<CrystalReportObject[]>> {
+    const result = await this.readSectionsResult(filePath);
+    const data = result.data
+      .filter((section) => sectionName === undefined || section.name === sectionName)
+      .flatMap((section) => section.objects);
+    return { data, warnings: result.warnings };
+  }
+
+  async readSubreports(filePath: string): Promise<CrystalSubreport[]> {
+    return (await this.readSubreportsResult(filePath)).data;
+  }
+
+  async readSubreportsResult(filePath: string): Promise<CrystalWorkerResult<CrystalSubreport[]>> {
+    const result = await this.readReportResult(filePath, {
+      includeSavedData: false,
+      includeFormatting: true,
+      includeSubreports: true,
+    });
+    return { data: result.data.subreports, warnings: result.warnings };
+  }
+
+  async readRunningTotals(filePath: string): Promise<CrystalRunningTotal[]> {
+    return (await this.readRunningTotalsResult(filePath)).data;
+  }
+
+  async readRunningTotalsResult(filePath: string): Promise<CrystalWorkerResult<CrystalRunningTotal[]>> {
+    const result = await this.readReportResult(filePath, {
+      includeSavedData: false,
+      includeFormatting: false,
+      includeSubreports: true,
+    });
+    return { data: result.data.runningTotals, warnings: result.warnings };
   }
 
   async request<T>(
@@ -198,6 +330,15 @@ export class CrystalWorkerClient extends EventEmitter {
     responseSchema?: ZodType<T>,
     timeoutMs = this.config.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS,
   ): Promise<T> {
+    return (await this.requestWithWarnings(command, args, responseSchema, timeoutMs)).data;
+  }
+
+  async requestWithWarnings<T>(
+    command: string,
+    args: unknown[] = [],
+    responseSchema?: ZodType<T>,
+    timeoutMs = this.config.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS,
+  ): Promise<CrystalWorkerResult<T>> {
     if (!this.connected || !this.process) {
       throw new CrystalWorkerError("WORKER_DISCONNECTED", "Crystal worker is not connected", true);
     }
@@ -212,7 +353,7 @@ export class CrystalWorkerClient extends EventEmitter {
       timeoutMs,
     };
 
-    return new Promise<T>((resolve, reject) => {
+    return new Promise<CrystalWorkerResult<T>>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(id);
         reject(new CrystalWorkerError(
@@ -224,9 +365,13 @@ export class CrystalWorkerClient extends EventEmitter {
 
       this.pending.set(id, {
         timer,
-        resolve: (result) => {
+        warnings: [],
+        resolve: (result, warnings) => {
           try {
-            resolve(responseSchema ? responseSchema.parse(result) : result as T);
+            resolve({
+              data: responseSchema ? responseSchema.parse(result) : result as T,
+              warnings,
+            });
           } catch (cause) {
             reject(new CrystalWorkerError(
               "INTERNAL_ERROR",
@@ -327,6 +472,9 @@ export class CrystalWorkerClient extends EventEmitter {
 
     const warning = WorkerWarningEnvelopeSchema.safeParse(value);
     if (warning.success) {
+      if (warning.data.id) {
+        this.pending.get(warning.data.id)?.warnings.push(warning.data.warning);
+      }
       this.emit("warning", warning.data.warning satisfies WorkerWarning);
       return;
     }
@@ -335,7 +483,10 @@ export class CrystalWorkerClient extends EventEmitter {
     if (success.success) {
       if (!this.ensureResponseVersion(success.data.protocolVersion)) return;
       const pending = this.takePending(success.data.id);
-      pending?.resolve(success.data.result);
+      pending?.resolve(success.data.result, [
+        ...(pending?.warnings ?? []),
+        ...success.data.warnings,
+      ]);
       for (const item of success.data.warnings) this.emit("warning", item);
       return;
     }

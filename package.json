@@ -2,7 +2,7 @@
   "name": "report-intelligence-platform",
   "version": "0.1.0",
   "private": true,
-  "license": "GPL-3.0-only",
+  "license": "LGPL-3.0-only",
   "workspaces": [
     "packages/*",
     "apps/*"
@@ -14,6 +14,7 @@
     "dev": "npm run dev --workspace=apps/mcp-server",
     "typecheck": "tsc --noEmit --project tsconfig.base.json",
     "test": "npm test --workspace=@rip/crystal-client && npm test --workspace=@rip/mcp-server",
+    "extract:real-report": "node scripts/extract-real-report.mjs",
     "clean": "rimraf -g \"packages/*/dist\" \"apps/*/dist\""
   },
   "devDependencies": {

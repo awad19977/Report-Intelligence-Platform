@@ -110,7 +110,7 @@ The worker targets .NET Framework 4.8 because SAP Crystal Reports for Visual Stu
 
 ## Open-core boundary
 
-### Public GPL-3.0-only components
+### Public LGPL-3.0-only components
 
 - MCP server.
 - CLI.
@@ -130,7 +130,7 @@ The worker targets .NET Framework 4.8 because SAP Crystal Reports for Visual Stu
 - Editing, generation, optimization, and advanced validation.
 - Enterprise features and commercial report-engine plugins.
 
-The boundary is physically separated: this workspace contains the GPL-3.0-only public platform, while the production Crystal runtime adapter and Windows worker are maintained in the private commercial repository. Public packages communicate with that worker through the versioned protocol and configured executable path.
+The boundary is physically separated: this workspace contains the LGPL-3.0-only public platform, while the production Crystal runtime adapter and Windows worker are maintained in the private commercial repository. Public packages communicate with that worker through the versioned protocol and configured executable path.
 
 ## MCP v1 capability set
 

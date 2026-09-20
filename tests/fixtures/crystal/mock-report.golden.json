@@ -1,0 +1,192 @@
+{
+  "report": {
+    "format": "crystal",
+    "filePath": "<REPORT_PATH>",
+    "fileName": "sample.rpt",
+    "metadata": {
+      "title": "Sample",
+      "subject": null,
+      "author": "Test",
+      "keywords": null,
+      "comments": null,
+      "createdDate": "2026-09-19T00:00:00Z",
+      "modifiedDate": "2026-09-19T00:00:00Z",
+      "savedData": false,
+      "pageSize": {
+        "width": 8.5,
+        "height": 11
+      },
+      "margins": {
+        "left": 0.5,
+        "right": 0.5,
+        "top": 0.5,
+        "bottom": 0.5
+      }
+    },
+    "dataSources": [
+      {
+        "name": "Main",
+        "type": "sql",
+        "connectionString": "[REDACTED]",
+        "tables": [],
+        "joins": [],
+        "commandText": "SELECT Id, Name FROM Patients WHERE VisitId = {?VisitId}",
+        "parameters": []
+      }
+    ],
+    "formulas": [
+      {
+        "name": "PatientDisplayName",
+        "syntax": "{@Title} + {Patients.LastName} + ', ' + {Patients.FirstName} + ToText({?VisitId})",
+        "evaluationTime": "WhileReadingRecords",
+        "isGlobal": false,
+        "isShared": false,
+        "referencedFields": [
+          "Patients.LastName",
+          "Patients.FirstName"
+        ],
+        "referencedFormulas": [
+          "Title"
+        ],
+        "dependencies": [
+          "formula:Title",
+          "field:Patients.LastName",
+          "field:Patients.FirstName",
+          "parameter:VisitId"
+        ]
+      }
+    ],
+    "parameters": [
+      {
+        "name": "VisitId",
+        "prompt": "Visit identifier",
+        "type": "number",
+        "defaultValue": 1001,
+        "allowNull": false,
+        "allowMultiple": false,
+        "valueList": null,
+        "cascadingParent": null,
+        "isOptional": false,
+        "description": "Selects one visit"
+      },
+      {
+        "name": "ApiToken",
+        "prompt": "Service token",
+        "type": "string",
+        "defaultValue": "[REDACTED]",
+        "allowNull": false,
+        "allowMultiple": false,
+        "valueList": "[REDACTED]",
+        "cascadingParent": null,
+        "isOptional": true,
+        "description": "Sensitive test parameter"
+      }
+    ],
+    "sections": [
+      {
+        "name": "Details a",
+        "type": "Details",
+        "groupName": null,
+        "groupField": null,
+        "groupCondition": null,
+        "height": 720,
+        "suppress": false,
+        "newPageBefore": false,
+        "newPageAfter": false,
+        "resetPageNumber": false,
+        "keepTogether": true,
+        "printAtBottom": false,
+        "objects": [
+          {
+            "name": "PatientName",
+            "type": "FieldObject",
+            "section": "Details a",
+            "left": 120,
+            "top": 60,
+            "width": 2400,
+            "height": 300,
+            "suppress": false,
+            "canGrow": true,
+            "format": {
+              "horizontalAlignment": "Left"
+            },
+            "text": null,
+            "formulaName": "PatientDisplayName",
+            "fieldName": null,
+            "subreportName": null
+          }
+        ]
+      }
+    ],
+    "subreports": [
+      {
+        "name": "VisitDetails",
+        "reportName": "VisitDetails.rpt",
+        "linkFields": [
+          {
+            "mainReportField": "Patients.VisitId",
+            "subreportField": "VisitDetails.VisitId",
+            "linkedParameterName": "?Pm-VisitDetails.VisitId"
+          }
+        ],
+        "isOnDemand": false,
+        "metadata": {
+          "title": "Visit details",
+          "subject": null,
+          "author": "Test",
+          "keywords": null,
+          "comments": null,
+          "savedData": false,
+          "pageSize": {
+            "width": 8.5,
+            "height": 11
+          },
+          "margins": {
+            "left": 0.25,
+            "right": 0.25,
+            "top": 0.25,
+            "bottom": 0.25
+          }
+        },
+        "dataSources": [],
+        "formulas": [],
+        "parameters": [],
+        "sections": [],
+        "runningTotals": [],
+        "customFunctions": []
+      }
+    ],
+    "runningTotals": [
+      {
+        "name": "PatientCount",
+        "field": "Patients.Id",
+        "type": "Count",
+        "evaluate": "OnChangeOfField",
+        "evaluateFormula": null,
+        "reset": "OnChangeOfGroup",
+        "resetFormula": null,
+        "groupName": "PatientGroup",
+        "fieldName": "Patients.Id"
+      }
+    ],
+    "customFunctions": [
+      {
+        "name": "FormatPatientName",
+        "syntax": "Function FormatPatientName(value As String) As String\nFormatPatientName = value\nEnd Function",
+        "language": "Basic"
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "code": "PARTIAL_FORMATTING",
+      "message": "Only supported formatting properties were extracted.",
+      "path": "sections[0].objects[0].format"
+    },
+    {
+      "code": "UNSUPPORTED_FEATURE",
+      "message": "Map object internals are not supported by this worker version.",
+      "path": "sections[0]"
+    }
+  ]
+}

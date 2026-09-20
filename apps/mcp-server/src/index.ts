@@ -12,6 +12,7 @@ import {
   CrystalWorkerError,
   redactSecrets,
   type WorkerErrorCode,
+  type WorkerWarning,
 } from "@rip/crystal-client";
 import winston from "winston";
 import { z } from "zod";
@@ -41,6 +42,31 @@ const ReadDataSourcesInputSchema = z.object({
 });
 
 const ExtractSqlInputSchema = z.object({
+  filePath: z.string().trim().min(1),
+});
+
+const ReadParametersInputSchema = z.object({
+  filePath: z.string().trim().min(1),
+});
+
+const ReadFormulasInputSchema = z.object({
+  filePath: z.string().trim().min(1),
+});
+
+const ReadSectionsInputSchema = z.object({
+  filePath: z.string().trim().min(1),
+});
+
+const ReadObjectsInputSchema = z.object({
+  filePath: z.string().trim().min(1),
+  sectionName: z.string().trim().min(1).optional(),
+});
+
+const ReadSubreportsInputSchema = z.object({
+  filePath: z.string().trim().min(1),
+});
+
+const ReadRunningTotalsInputSchema = z.object({
   filePath: z.string().trim().min(1),
 });
 
@@ -115,6 +141,79 @@ function createServer(worker: CrystalWorkerClient, config: ServerConfig): Server
           required: ["filePath"],
         },
       },
+      {
+        name: "read_parameters",
+        description: "Read validated parameter definitions from a Crystal Report file",
+        inputSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            filePath: { type: "string", description: "Path to the .rpt file" },
+          },
+          required: ["filePath"],
+        },
+      },
+      {
+        name: "read_formulas",
+        description: "Read validated formulas and dependency references from a Crystal Report file",
+        inputSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            filePath: { type: "string", description: "Path to the .rpt file" },
+          },
+          required: ["filePath"],
+        },
+      },
+      {
+        name: "read_sections",
+        description: "Read validated sections, layout settings, and contained objects from a Crystal Report file",
+        inputSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            filePath: { type: "string", description: "Path to the .rpt file" },
+          },
+          required: ["filePath"],
+        },
+      },
+      {
+        name: "read_objects",
+        description: "Read a flattened list of validated report objects, optionally filtered by exact section name",
+        inputSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            filePath: { type: "string", description: "Path to the .rpt file" },
+            sectionName: { type: "string", description: "Optional exact section name" },
+          },
+          required: ["filePath"],
+        },
+      },
+      {
+        name: "read_subreports",
+        description: "Read validated subreports and their main-to-subreport link fields from a Crystal Report file",
+        inputSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            filePath: { type: "string", description: "Path to the .rpt file" },
+          },
+          required: ["filePath"],
+        },
+      },
+      {
+        name: "read_running_totals",
+        description: "Read validated running-total evaluation and reset definitions from a Crystal Report file",
+        inputSchema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            filePath: { type: "string", description: "Path to the .rpt file" },
+          },
+          required: ["filePath"],
+        },
+      },
     ],
   }));
 
@@ -124,20 +223,78 @@ function createServer(worker: CrystalWorkerClient, config: ServerConfig): Server
       && request.params.name !== "read_metadata"
       && request.params.name !== "read_data_sources"
       && request.params.name !== "extract_sql"
+      && request.params.name !== "read_parameters"
+      && request.params.name !== "read_formulas"
+      && request.params.name !== "read_sections"
+      && request.params.name !== "read_objects"
+      && request.params.name !== "read_subreports"
+      && request.params.name !== "read_running_totals"
     ) {
       return toolFailure("UNSUPPORTED_FEATURE", `Tool '${request.params.name}' is not available in this milestone`);
     }
 
     try {
+      if (request.params.name === "read_running_totals") {
+        const input = ReadRunningTotalsInputSchema.parse(request.params.arguments ?? {});
+        const filePath = await authorizeReportPath(input.filePath, config);
+
+        logger.info("Reading Crystal running totals", { filePath });
+        const result = await worker.readRunningTotalsResult(filePath);
+        return toolSuccess(redactSecrets(result.data), result.warnings);
+      }
+
+      if (request.params.name === "read_subreports") {
+        const input = ReadSubreportsInputSchema.parse(request.params.arguments ?? {});
+        const filePath = await authorizeReportPath(input.filePath, config);
+
+        logger.info("Reading Crystal subreports", { filePath });
+        const result = await worker.readSubreportsResult(filePath);
+        return toolSuccess(redactSecrets(result.data), result.warnings);
+      }
+
+      if (request.params.name === "read_objects") {
+        const input = ReadObjectsInputSchema.parse(request.params.arguments ?? {});
+        const filePath = await authorizeReportPath(input.filePath, config);
+
+        logger.info("Reading Crystal report objects", { filePath, sectionName: input.sectionName });
+        const result = await worker.readObjectsResult(filePath, input.sectionName);
+        return toolSuccess(redactSecrets(result.data), result.warnings);
+      }
+
+      if (request.params.name === "read_sections") {
+        const input = ReadSectionsInputSchema.parse(request.params.arguments ?? {});
+        const filePath = await authorizeReportPath(input.filePath, config);
+
+        logger.info("Reading Crystal report sections", { filePath });
+        const result = await worker.readSectionsResult(filePath);
+        return toolSuccess(redactSecrets(result.data), result.warnings);
+      }
+
+      if (request.params.name === "read_formulas") {
+        const input = ReadFormulasInputSchema.parse(request.params.arguments ?? {});
+        const filePath = await authorizeReportPath(input.filePath, config);
+
+        logger.info("Reading Crystal report formulas", { filePath });
+        const result = await worker.readFormulasResult(filePath);
+        return toolSuccess(redactSecrets(result.data), result.warnings);
+      }
+
+      if (request.params.name === "read_parameters") {
+        const input = ReadParametersInputSchema.parse(request.params.arguments ?? {});
+        const filePath = await authorizeReportPath(input.filePath, config);
+
+        logger.info("Reading Crystal report parameters", { filePath });
+        const result = await worker.readParametersResult(filePath);
+        return toolSuccess(redactSecrets(result.data), result.warnings);
+      }
+
       if (request.params.name === "extract_sql") {
         const input = ExtractSqlInputSchema.parse(request.params.arguments ?? {});
         const filePath = await authorizeReportPath(input.filePath, config);
 
         logger.info("Extracting Crystal report SQL", { filePath });
-        const queries = redactSecrets(await worker.extractSql(filePath));
-        return {
-          content: [{ type: "text" as const, text: JSON.stringify(queries, null, 2) }],
-        };
+        const result = await worker.extractSqlResult(filePath);
+        return toolSuccess(redactSecrets(result.data), result.warnings);
       }
 
       if (request.params.name === "read_data_sources") {
@@ -145,10 +302,8 @@ function createServer(worker: CrystalWorkerClient, config: ServerConfig): Server
         const filePath = await authorizeReportPath(input.filePath, config);
 
         logger.info("Reading Crystal report data sources", { filePath });
-        const dataSources = redactSecrets(await worker.readDataSources(filePath));
-        return {
-          content: [{ type: "text" as const, text: JSON.stringify(dataSources, null, 2) }],
-        };
+        const result = await worker.readDataSourcesResult(filePath);
+        return toolSuccess(redactSecrets(result.data), result.warnings);
       }
 
       if (request.params.name === "read_metadata") {
@@ -156,10 +311,8 @@ function createServer(worker: CrystalWorkerClient, config: ServerConfig): Server
         const filePath = await authorizeReportPath(input.filePath, config);
 
         logger.info("Reading Crystal report metadata", { filePath });
-        const metadata = redactSecrets(await worker.readMetadata(filePath));
-        return {
-          content: [{ type: "text" as const, text: JSON.stringify(metadata, null, 2) }],
-        };
+        const result = await worker.readMetadataResult(filePath);
+        return toolSuccess(redactSecrets(result.data), result.warnings);
       }
 
       const input = ReadReportInputSchema.parse(request.params.arguments ?? {});
@@ -171,10 +324,8 @@ function createServer(worker: CrystalWorkerClient, config: ServerConfig): Server
       });
 
       logger.info("Reading Crystal report", { filePath });
-      const report = redactSecrets(await worker.readReport(filePath, options));
-      return {
-        content: [{ type: "text" as const, text: JSON.stringify(report, null, 2) }],
-      };
+      const result = await worker.readReportResult(filePath, options);
+      return toolSuccess(redactSecrets(result.data), result.warnings);
     } catch (error) {
       const safe = mapToolError(error);
       logger.warn("Crystal report request failed", { code: safe.code, message: safe.message });
@@ -224,6 +375,27 @@ function mapToolError(error: unknown): ToolError | CrystalWorkerError {
     return new ToolError("INVALID_ARGUMENT", "Tool arguments or worker response did not match the expected schema");
   }
   return new ToolError("INTERNAL_ERROR", "The report could not be read because of an internal error");
+}
+
+function toolSuccess<T>(data: T, warnings: WorkerWarning[]) {
+  const content = [{
+    type: "text" as const,
+    text: JSON.stringify(data, null, 2),
+  }];
+
+  if (warnings.length > 0) {
+    content.push({
+      type: "text" as const,
+      text: JSON.stringify({
+        warnings: warnings.map((warning) => ({
+          ...warning,
+          message: redactErrorMessage(warning.message),
+        })),
+      }, null, 2),
+    });
+  }
+
+  return { content };
 }
 
 function toolFailure(code: WorkerErrorCode, message: string) {
