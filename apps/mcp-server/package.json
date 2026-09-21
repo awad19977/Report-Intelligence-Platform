@@ -1,6 +1,6 @@
 {
   "name": "@report-intelligence/mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server exposing validated read-only Crystal Reports inspection through a separately licensed Windows worker.",
   "license": "LGPL-3.0-only",
   "author": "Awad Emad",

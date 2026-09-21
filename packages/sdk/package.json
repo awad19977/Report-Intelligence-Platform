@@ -1,6 +1,6 @@
 {
   "name": "@report-intelligence/sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Developer helpers and re-exported contracts for building Report Intelligence Platform plugins.",
   "license": "LGPL-3.0-only",
   "author": "Awad Emad",

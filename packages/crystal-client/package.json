@@ -1,6 +1,6 @@
 {
   "name": "@report-intelligence/crystal-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Public protocol, validation schemas, and stdio client for a separately distributed Crystal Reports worker.",
   "license": "LGPL-3.0-only",
   "author": "Awad Emad",
