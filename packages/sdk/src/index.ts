@@ -1,4 +1,4 @@
-import type { Logger, Cache, Storage } from "@rip/plugin-api";
+import type { Logger, Cache, Storage } from "@report-intelligence/plugin-api";
 
 export function createLogger(): Logger {
   return {
@@ -82,7 +82,7 @@ export function createStorage(): Storage {
 }
 
 // Re-export core types
-export * from "@rip/core";
+export * from "@report-intelligence/core";
 // Re-export plugin-api types but avoid duplicate PluginConfig
 export type {
   PluginInfo, 
@@ -111,4 +111,4 @@ export type {
   ImpactAnalysis,
   ValidationContext,
   GenerationContext
-} from "@rip/plugin-api";
+} from "@report-intelligence/plugin-api";

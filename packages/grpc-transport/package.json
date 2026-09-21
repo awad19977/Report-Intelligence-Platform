@@ -1,11 +1,21 @@
 {
-  "name": "@rip/grpc-transport",
+  "name": "@report-intelligence/grpc-transport",
   "version": "0.1.0",
+  "description": "Experimental gRPC transport primitives for Report Intelligence Platform workers.",
   "license": "LGPL-3.0-only",
+  "author": "Awad Emad",
+  "homepage": "https://github.com/awad19977/Report-Intelligence-Platform#readme",
+  "bugs": { "url": "https://github.com/awad19977/Report-Intelligence-Platform/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awad19977/Report-Intelligence-Platform.git",
+    "directory": "packages/grpc-transport"
+  },
+  "keywords": ["reporting", "grpc", "transport", "typescript"],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "LICENSE"],
+  "files": ["dist", "README.md", "LICENSE"],
   "publishConfig": {
     "access": "public"
   },
@@ -22,11 +32,12 @@
     "test": "vitest run",
     "lint": "eslint src --ext .ts"
   },
+  "engines": { "node": ">=20.0.0" },
   "dependencies": {
     "@grpc/grpc-js": "^1.9.0",
     "@grpc/proto-loader": "^0.7.10",
-    "@rip/core": "^0.1.0",
-    "@rip/plugin-api": "^0.1.0",
+    "@report-intelligence/core": "^0.1.0",
+    "@report-intelligence/plugin-api": "^0.1.0",
     "winston": "^3.11.0"
   },
   "devDependencies": {

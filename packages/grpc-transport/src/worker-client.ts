@@ -1,4 +1,4 @@
-import { WorkerClient as IWorkerClient, WorkerHealth, WorkerClientConfig } from "@rip/core";
+import { WorkerClient as IWorkerClient, WorkerHealth, WorkerClientConfig } from "@report-intelligence/core";
 import { createChannel, loadProto } from "./channel.js";
 import { ensureCerts, createChannelCredentialsSync } from "./certs.js";
 import * as path from "path";

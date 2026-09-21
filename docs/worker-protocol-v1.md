@@ -2,7 +2,7 @@
 
 ## Scope
 
-The local Crystal worker protocol is newline-delimited JSON over stdio. Version `1.0` is the contract between the public `@rip/crystal-client` package and the proprietary Windows Crystal worker.
+The local Crystal worker protocol is newline-delimited JSON over stdio. Version `1.0` is the contract between the public `@report-intelligence/crystal-client` package and the proprietary Windows Crystal worker.
 
 - Standard output is reserved exclusively for protocol envelopes.
 - Diagnostics and logs must be written to standard error.

@@ -9,11 +9,11 @@
   ],
   "scripts": {
     "build": "npm run build:packages && npm run build:apps",
-    "build:packages": "npm run build --workspace=@rip/core && npm run build --workspace=@rip/crystal-client && npm run build --workspace=@rip/plugin-api && npm run build --workspace=@rip/grpc-transport && npm run build --workspace=@rip/sdk",
-    "build:apps": "npm run build --workspace=@rip/cli && npm run build --workspace=@rip/mcp-server",
+    "build:packages": "npm run build --workspace=@report-intelligence/core && npm run build --workspace=@report-intelligence/crystal-client && npm run build --workspace=@report-intelligence/plugin-api && npm run build --workspace=@report-intelligence/grpc-transport && npm run build --workspace=@report-intelligence/sdk",
+    "build:apps": "npm run build --workspace=@report-intelligence/cli && npm run build --workspace=@report-intelligence/mcp-server",
     "dev": "npm run dev --workspace=apps/mcp-server",
     "typecheck": "tsc --noEmit --project tsconfig.base.json",
-    "test": "npm test --workspace=@rip/crystal-client && npm test --workspace=@rip/mcp-server",
+    "test": "npm test --workspace=@report-intelligence/crystal-client && npm test --workspace=@report-intelligence/mcp-server",
     "extract:real-report": "node scripts/extract-real-report.mjs",
     "clean": "rimraf -g \"packages/*/dist\" \"apps/*/dist\""
   },

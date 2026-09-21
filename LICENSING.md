@@ -47,7 +47,7 @@ The source boundary is physically separated:
 - The production Crystal runtime adapter and Windows worker live in the separate private `report-intelligence-commercial` repository.
 - Public code interacts with the commercial worker only through the versioned protocol and a configured executable path.
 
-The root `LICENSE` applies to all project-owned source in this repository. SAP runtime redistribution terms and the obligations of any combined distribution remain separate legal-review items.
+The root `LICENSE` contains the GNU Lesser General Public License v3.0 terms. `COPYING` contains the GNU General Public License v3.0 terms incorporated by the LGPL. Package-level `LICENSE` files contain both texts so each npm tarball is self-contained. SAP runtime redistribution terms and the obligations of any combined distribution remain separate legal-review items.
 
 ## Repository split
 

@@ -116,6 +116,8 @@ This project follows an **Open Core** model:
 
 See [LICENSING.md](LICENSING.md) for the implemented public/commercial source boundary.
 
+Each published workspace has its own npm-facing README and metadata. Maintainers should follow the [npm publishing guide](docs/npm-publishing.md) for the first release and subsequent OIDC/provenance releases.
+
 ## MCP Tools
 
 The MCP server currently advertises these tested tools:
@@ -177,14 +179,14 @@ The following capabilities are planned and will be advertised only after their w
 
 ## Project Structure Details
 
-### Core Package (@rip/core)
+### Core Package (@report-intelligence/core)
 
 Contains all shared types and utilities:
 - Report, Formula, Parameter, Section, DataSource types
 - Search, Validation, Documentation types
 - Zod schemas for validation
 
-### Plugin API (@rip/plugin-api)
+### Plugin API (@report-intelligence/plugin-api)
 
 Defines the plugin interface:
 - `Plugin` interface with capabilities
@@ -196,7 +198,7 @@ Defines the plugin interface:
 
 The public Crystal client contains shared models, the worker protocol, transport clients, test doubles, and developer helpers. The production SAP Crystal runtime adapter and Windows worker are maintained in the separate commercial repository.
 
-### MCP Server (@rip/mcp-server)
+### MCP Server (@report-intelligence/mcp-server)
 
 Model Context Protocol server:
 - Exposes tools to AI agents
@@ -221,7 +223,7 @@ Windows worker process:
 | `RIP_MAX_REPORT_BYTES` | Maximum accepted `.rpt` file size in bytes | No |
 | `LOG_LEVEL` | Log level (debug/info/warn/error) | No |
 
-The MCP server now advertises `read_report` only. Additional tools will be advertised as their worker-backed implementations reach the same validation and error-handling standard. See [the worker protocol v1 specification](docs/worker-protocol-v1.md) for the stdio contract.
+See [the worker protocol v1 specification](docs/worker-protocol-v1.md) for the stdio contract.
 
 ## Research Documentation
 
@@ -235,4 +237,4 @@ The `00 Research/` directory contains comprehensive research on:
 
 ## License
 
-All project-owned source in this repository is licensed under LGPL-3.0-only. Separate applications may use the public libraries under LGPL's linking terms without placing the entire application under LGPL. The Crystal runtime adapter and Windows worker are separate processes distributed under commercial terms; see [LICENSING.md](LICENSING.md).
+All project-owned source in this repository is licensed under LGPL-3.0-only. The LGPL terms are in [LICENSE](LICENSE), with the incorporated GPLv3 terms in [COPYING](COPYING). Separate applications may use the public libraries under LGPL's linking terms without placing the entire application under LGPL. The Crystal runtime adapter and Windows worker are separate processes distributed under commercial terms; see [LICENSING.md](LICENSING.md).

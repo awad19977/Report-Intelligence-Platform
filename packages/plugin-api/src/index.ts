@@ -27,7 +27,7 @@ import {
   Storage,
   WorkerClient,
   GenerationContext,
-} from "@rip/core";
+} from "@report-intelligence/core";
 
 export const PluginCapabilitySchema = z.enum([
   "read",
@@ -237,7 +237,7 @@ export type {
   SearchQuery,
   SearchFilter,
   DocumentationOptions,
-} from "@rip/core";
+} from "@report-intelligence/core";
 
 export type PluginConstructor = new (context: {
   logger: Logger;

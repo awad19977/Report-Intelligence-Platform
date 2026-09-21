@@ -1,11 +1,21 @@
 {
-  "name": "@rip/crystal-client",
+  "name": "@report-intelligence/crystal-client",
   "version": "0.1.0",
+  "description": "Public protocol, validation schemas, and stdio client for a separately distributed Crystal Reports worker.",
   "license": "LGPL-3.0-only",
+  "author": "Awad Emad",
+  "homepage": "https://github.com/awad19977/Report-Intelligence-Platform#readme",
+  "bugs": { "url": "https://github.com/awad19977/Report-Intelligence-Platform/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awad19977/Report-Intelligence-Platform.git",
+    "directory": "packages/crystal-client"
+  },
+  "keywords": ["crystal-reports", "reporting", "stdio", "typescript"],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "LICENSE"],
+  "files": ["dist", "README.md", "LICENSE"],
   "publishConfig": {
     "access": "public"
   },
@@ -21,6 +31,7 @@
     "test": "vitest run",
     "lint": "eslint src --ext .ts"
   },
+  "engines": { "node": ">=20.0.0" },
   "dependencies": {
     "zod": "^3.22.0"
   },

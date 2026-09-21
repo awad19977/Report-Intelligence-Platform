@@ -13,7 +13,7 @@ To run the opt-in real-worker test, set:
 Then run:
 
 ```powershell
-npm test --workspace=@rip/mcp-server
+npm test --workspace=@report-intelligence/mcp-server
 ```
 
 The test hashes the report before and after `read_report` and fails if the file changes.

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { realpath, stat } from "node:fs/promises";
 import path from "node:path";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -13,7 +14,7 @@ import {
   redactSecrets,
   type WorkerErrorCode,
   type WorkerWarning,
-} from "@rip/crystal-client";
+} from "@report-intelligence/crystal-client";
 import winston from "winston";
 import { z } from "zod";
 

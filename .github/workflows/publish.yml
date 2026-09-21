@@ -1,0 +1,80 @@
+name: Publish npm packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      dist_tag:
+        description: npm distribution tag
+        required: true
+        default: latest
+        type: choice
+        options:
+          - latest
+          - next
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Verify and publish
+    runs-on: ubuntu-latest
+    environment: npm-production
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Verify release tool versions
+        run: |
+          node --version
+          npm --version
+          node -e 'const [a,b,c]=process.argv[1].split(".").map(Number); if (a<11 || (a===11 && (b<5 || (b===5 && c<1)))) { throw new Error("npm 11.5.1 or newer is required for trusted publishing"); }' "$(npm --version)"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Publish core
+        run: npm publish --workspace=@report-intelligence/core --access public --tag "${{ inputs.dist_tag }}"
+
+      - name: Publish Crystal client
+        run: npm publish --workspace=@report-intelligence/crystal-client --access public --tag "${{ inputs.dist_tag }}"
+
+      - name: Publish plugin API
+        run: npm publish --workspace=@report-intelligence/plugin-api --access public --tag "${{ inputs.dist_tag }}"
+
+      - name: Publish gRPC transport
+        run: npm publish --workspace=@report-intelligence/grpc-transport --access public --tag "${{ inputs.dist_tag }}"
+
+      - name: Publish SDK
+        run: npm publish --workspace=@report-intelligence/sdk --access public --tag "${{ inputs.dist_tag }}"
+
+      - name: Publish CLI
+        run: npm publish --workspace=@report-intelligence/cli --access public --tag "${{ inputs.dist_tag }}"
+
+      - name: Publish MCP server
+        run: npm publish --workspace=@report-intelligence/mcp-server --access public --tag "${{ inputs.dist_tag }}"

@@ -1,26 +1,40 @@
 {
-  "name": "@rip/mcp-server",
+  "name": "@report-intelligence/mcp-server",
   "version": "0.1.0",
+  "description": "MCP server exposing validated read-only Crystal Reports inspection through a separately licensed Windows worker.",
   "license": "LGPL-3.0-only",
+  "author": "Awad Emad",
+  "homepage": "https://github.com/awad19977/Report-Intelligence-Platform#readme",
+  "bugs": { "url": "https://github.com/awad19977/Report-Intelligence-Platform/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awad19977/Report-Intelligence-Platform.git",
+    "directory": "apps/mcp-server"
+  },
+  "keywords": ["mcp", "crystal-reports", "reporting", "typescript"],
   "type": "module",
   "main": "./dist/index.js",
-  "files": ["dist", "LICENSE"],
+  "files": ["dist", "README.md", "LICENSE"],
   "publishConfig": {
     "access": "public"
+  },
+  "bin": {
+    "report-intelligence-mcp": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
     "start": "node dist/index.js",
-    "pretest": "npm run build --workspace=@rip/crystal-client && npm run build",
+    "pretest": "npm run build --workspace=@report-intelligence/crystal-client && npm run build",
     "test": "vitest run",
     "lint": "eslint src --ext .ts"
   },
+  "engines": { "node": ">=20.0.0" },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "@rip/core": "^0.1.0",
-    "@rip/crystal-client": "^0.1.0",
-    "@rip/plugin-api": "^0.1.0",
+    "@report-intelligence/core": "^0.1.0",
+    "@report-intelligence/crystal-client": "^0.1.0",
+    "@report-intelligence/plugin-api": "^0.1.0",
     "zod": "^3.22.0",
     "winston": "^3.11.0"
   },

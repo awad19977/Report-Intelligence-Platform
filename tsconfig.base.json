@@ -20,11 +20,11 @@
     "noPropertyAccessFromIndexSignature": true,
     "baseUrl": ".",
     "paths": {
-      "@rip/core": ["packages/core/src/index.ts"],
-      "@rip/crystal-client": ["packages/crystal-client/src/index.ts"],
-      "@rip/plugin-api": ["packages/plugin-api/src/index.ts"],
-      "@rip/grpc-transport": ["packages/grpc-transport/src/index.ts"],
-      "@rip/sdk": ["packages/sdk/src/index.ts"]
+      "@report-intelligence/core": ["packages/core/src/index.ts"],
+      "@report-intelligence/crystal-client": ["packages/crystal-client/src/index.ts"],
+      "@report-intelligence/plugin-api": ["packages/plugin-api/src/index.ts"],
+      "@report-intelligence/grpc-transport": ["packages/grpc-transport/src/index.ts"],
+      "@report-intelligence/sdk": ["packages/sdk/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "dist", "workers", "**/*.test.ts"]
