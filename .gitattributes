@@ -13,3 +13,6 @@
 *.rpt binary
 *.exe binary
 *.dll binary
+
+# The staged worker manifest hashes the exact deployed config bytes.
+distributions/crystal-worker-community-win32-x64/bin/CrystalWorker.exe.config -text -eol
