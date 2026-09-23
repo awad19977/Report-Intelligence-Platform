@@ -17,6 +17,8 @@ import {
 } from "@report-intelligence/crystal-client";
 import winston from "winston";
 import { z } from "zod";
+import { resolveCrystalWorker } from "./worker-resolution.js";
+import { doctorCommand } from "./doctor.js";
 
 const ALL_LOG_LEVELS = ["error", "warn", "info", "http", "verbose", "debug", "silly"];
 const DEFAULT_MAX_REPORT_BYTES = 256 * 1024 * 1024;
@@ -85,7 +87,7 @@ class ToolError extends Error {
 
 function createServer(worker: CrystalWorkerClient, config: ServerConfig): Server {
   const server = new Server(
-    { name: "report-intelligence-platform", version: "0.1.0" },
+    { name: "report-intelligence-platform", version: "0.1.2" },
     { capabilities: { tools: {} } },
   );
 
@@ -441,13 +443,12 @@ async function resolveAllowedRoots(value: string | undefined): Promise<string[]>
 }
 
 async function main(): Promise<void> {
-  const workerPath = process.env["CRYSTAL_WORKER_PATH"];
-  if (!workerPath) {
-    throw new Error("CRYSTAL_WORKER_PATH is required");
-  }
+  const resolution = await resolveCrystalWorker({
+    explicitPath: process.env["CRYSTAL_WORKER_PATH"],
+  });
 
   const worker = new CrystalWorkerClient({
-    workerPath: path.resolve(workerPath),
+    workerPath: resolution.workerPath,
     workerArgs: parseWorkerArgs(process.env["CRYSTAL_WORKER_ARGS"]),
     startupTimeoutMs: parsePositiveInteger(process.env["CRYSTAL_WORKER_STARTUP_TIMEOUT_MS"], 10_000),
     requestTimeoutMs: parsePositiveInteger(process.env["CRYSTAL_WORKER_TIMEOUT_MS"], 60_000),
@@ -464,7 +465,11 @@ async function main(): Promise<void> {
   const server = createServer(worker, config);
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  logger.info("MCP server started", { allowedReportRoots: config.allowedReportRoots });
+  logger.info("MCP server started", {
+    allowedReportRoots: config.allowedReportRoots,
+    workerEdition: resolution.edition,
+    workerSource: resolution.source,
+  });
 
   let shuttingDown = false;
   const shutdown = async () => {
@@ -480,9 +485,15 @@ async function main(): Promise<void> {
   process.stdin.once("end", () => void shutdown());
 }
 
-main().catch((error: unknown) => {
+const command = process.argv[2] === "doctor"
+  ? doctorCommand(process.argv.slice(3))
+  : main();
+
+command.catch((error: unknown) => {
   logger.error("MCP server failed", {
     message: error instanceof Error ? redactErrorMessage(error.message) : "Unknown startup error",
   });
   process.exitCode = 1;
+}).then((exitCode) => {
+  if (typeof exitCode === "number") process.exitCode = exitCode;
 });

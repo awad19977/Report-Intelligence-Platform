@@ -58,23 +58,29 @@ jobs:
       - name: Audit dependencies
         run: npm audit --audit-level=high
 
+      - name: Verify Community worker package
+        run: npm pack --dry-run ./distributions/crystal-worker-community-win32-x64
+
+      - name: Publish Community Crystal worker
+        run: node scripts/publish-package-if-new.mjs ./distributions/crystal-worker-community-win32-x64 "${{ inputs.dist_tag }}"
+
       - name: Publish core
-        run: npm publish --workspace=@report-intelligence/core --access public --tag "${{ inputs.dist_tag }}"
+        run: node scripts/publish-package-if-new.mjs ./packages/core "${{ inputs.dist_tag }}"
 
       - name: Publish Crystal client
-        run: npm publish --workspace=@report-intelligence/crystal-client --access public --tag "${{ inputs.dist_tag }}"
+        run: node scripts/publish-package-if-new.mjs ./packages/crystal-client "${{ inputs.dist_tag }}"
 
       - name: Publish plugin API
-        run: npm publish --workspace=@report-intelligence/plugin-api --access public --tag "${{ inputs.dist_tag }}"
+        run: node scripts/publish-package-if-new.mjs ./packages/plugin-api "${{ inputs.dist_tag }}"
 
       - name: Publish gRPC transport
-        run: npm publish --workspace=@report-intelligence/grpc-transport --access public --tag "${{ inputs.dist_tag }}"
+        run: node scripts/publish-package-if-new.mjs ./packages/grpc-transport "${{ inputs.dist_tag }}"
 
       - name: Publish SDK
-        run: npm publish --workspace=@report-intelligence/sdk --access public --tag "${{ inputs.dist_tag }}"
-
-      - name: Publish CLI
-        run: npm publish --workspace=@report-intelligence/cli --access public --tag "${{ inputs.dist_tag }}"
+        run: node scripts/publish-package-if-new.mjs ./packages/sdk "${{ inputs.dist_tag }}"
 
       - name: Publish MCP server
-        run: npm publish --workspace=@report-intelligence/mcp-server --access public --tag "${{ inputs.dist_tag }}"
+        run: node scripts/publish-package-if-new.mjs ./apps/mcp-server "${{ inputs.dist_tag }}"
+
+      - name: Publish CLI
+        run: node scripts/publish-package-if-new.mjs ./apps/cli "${{ inputs.dist_tag }}"

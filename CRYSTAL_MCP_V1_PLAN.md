@@ -123,14 +123,14 @@ The worker targets .NET Framework 4.8 because SAP Crystal Reports for Visual Stu
 
 ### Commercial components
 
-- SAP Crystal runtime integration.
-- The production Windows Crystal worker implementation.
+- SAP Crystal runtime integration source.
+- Community and Pro Windows Crystal worker source and implementation.
 - Proprietary `.rpt` read/write mappings and compatibility knowledge.
 - Advanced formula analysis and compilation.
 - Editing, generation, optimization, and advanced validation.
 - Enterprise features and commercial report-engine plugins.
 
-The boundary is physically separated: this workspace contains the LGPL-3.0-only public platform, while the production Crystal runtime adapter and Windows worker are maintained in the private commercial repository. Public packages communicate with that worker through the versioned protocol and configured executable path.
+The source boundary is physically separated: this workspace contains the LGPL-3.0-only public platform, while Community and Pro Crystal runtime adapter source is maintained in the private commercial repository. A reviewed compiled Community worker is distributed from this repository as separately licensed object code through `@report-intelligence/crystal-worker-community-win32-x64`; SAP assemblies are excluded. Public packages communicate with Community or Pro through the versioned protocol and automatic discovery or a configured executable path.
 
 ## MCP v1 capability set
 
@@ -252,7 +252,7 @@ Exit criteria:
 Deliverables:
 
 - `rip doctor` verifies Node, OS, worker, SAP runtime, paths, and permissions.
-- Local worker installation and lifecycle documentation.
+- Local Community worker installation, automatic edition discovery, and lifecycle documentation.
 - Optional Windows service mode.
 - Remote Windows worker transport, authenticated and encrypted.
 - Clear configuration priority: defaults, file, environment, CLI.

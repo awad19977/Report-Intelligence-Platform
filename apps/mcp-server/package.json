@@ -1,7 +1,7 @@
 {
   "name": "@report-intelligence/mcp-server",
-  "version": "0.1.1",
-  "description": "MCP server exposing validated read-only Crystal Reports inspection through a separately licensed Windows worker.",
+  "version": "0.1.2",
+  "description": "MCP server exposing validated read-only Crystal Reports inspection with automatic Community or Pro worker discovery on Windows.",
   "license": "LGPL-3.0-only",
   "author": "Awad Emad",
   "homepage": "https://github.com/awad19977/Report-Intelligence-Platform#readme",
@@ -37,6 +37,9 @@
     "@report-intelligence/plugin-api": "^0.1.0",
     "zod": "^3.22.0",
     "winston": "^3.11.0"
+  },
+  "optionalDependencies": {
+    "@report-intelligence/crystal-worker-community-win32-x64": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

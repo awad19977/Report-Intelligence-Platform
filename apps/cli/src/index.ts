@@ -3,9 +3,26 @@ import { program } from "commander";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import winston from "winston";
+import { spawn } from "node:child_process";
+import { installCodingAgent } from "./agent-install.js";
 
 const __filename = fileURLToPath(import.meta.url);
 dirname(__filename);
+
+function runMcpServer(args: string[]): Promise<void> {
+  const serverEntry = fileURLToPath(import.meta.resolve("@report-intelligence/mcp-server"));
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [serverEntry, ...args], { stdio: "inherit" });
+    child.once("error", reject);
+    child.once("exit", (code, signal) => {
+      if (signal) reject(new Error(`MCP server exited on ${signal}`));
+      else {
+        process.exitCode = code ?? 1;
+        resolve();
+      }
+    });
+  });
+}
 
 const logger = winston.createLogger({
   level: "info",
@@ -19,7 +36,27 @@ const logger = winston.createLogger({
 program
   .name("rip")
   .description("Report Intelligence Platform CLI")
-  .version("0.1.0");
+  .version("0.1.2");
+
+program
+  .command("doctor")
+  .description("Check the Community or Pro worker and Crystal runtime")
+  .option("--report <path>", "Open a .rpt file to verify the SAP Crystal runtime")
+  .option("--json", "Print machine-readable diagnostics")
+  .action(async (options: { report?: string; json?: boolean }) => {
+    await runMcpServer(["doctor", ...(options.report ? ["--report", options.report] : []), ...(options.json ? ["--json"] : [])]);
+  });
+
+program
+  .command("agents")
+  .description("Configure a coding agent to use the Crystal MCP server")
+  .command("install <agent>")
+  .description("Install for codex, claude, cursor, or vscode")
+  .option("--reports <directory>", "Directory containing .rpt files", process.cwd())
+  .action(async (agent: string, options: { reports: string }) => {
+    const destination = await installCodingAgent(agent, options.reports);
+    process.stdout.write(`Configured ${agent}: ${destination}\n`);
+  });
 
 program
   .command("read <filePath>")
@@ -100,11 +137,11 @@ program
 program
   .command("mcp")
   .description("Start the MCP server")
-  .option("--stdio", "Use stdio transport", false)
-  .option("--port <port>", "Port for HTTP transport", "3000")
-  .action(async (_options) => {
-    logger.info("Starting MCP server");
-    console.log("MCP server not yet implemented");
+  .action(async () => {
+    await runMcpServer([]);
   });
 
-program.parse();
+program.parseAsync(process.argv).catch((error: unknown) => {
+  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+  process.exitCode = 1;
+});

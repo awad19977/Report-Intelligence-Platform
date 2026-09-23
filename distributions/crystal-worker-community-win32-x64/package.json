@@ -1,0 +1,50 @@
+{
+  "name": "@report-intelligence/crystal-worker-community-win32-x64",
+  "version": "0.1.0",
+  "description": "Free-to-use binary-only Community Crystal Reports worker for Report Intelligence on Windows x64.",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Awad Emad",
+  "homepage": "https://github.com/awad19977/Report-Intelligence-Platform#crystal-worker-community",
+  "bugs": {
+    "url": "https://github.com/awad19977/Report-Intelligence-Platform/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awad19977/Report-Intelligence-Platform.git",
+    "directory": "distributions/crystal-worker-community-win32-x64"
+  },
+  "keywords": ["crystal-reports", "worker", "windows", "reporting", "mcp"],
+  "main": "./index.cjs",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./index.cjs",
+      "default": "./index.cjs"
+    }
+  },
+  "bin": {
+    "report-intelligence-crystal-worker": "launch.cjs"
+  },
+  "files": [
+    "bin",
+    "index.cjs",
+    "index.d.ts",
+    "launch.cjs",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "prepack": "node verify-package.cjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "os": ["win32"],
+  "cpu": ["x64"],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "preferUnplugged": true
+}

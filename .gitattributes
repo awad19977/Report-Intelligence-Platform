@@ -11,3 +11,5 @@
 *.ico binary
 *.pdf binary
 *.rpt binary
+*.exe binary
+*.dll binary

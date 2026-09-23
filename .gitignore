@@ -14,6 +14,12 @@ bin/
 obj/
 *.tsbuildinfo
 
+# Reviewed binary-only Community worker distribution. The worker source remains private.
+!distributions/
+!distributions/crystal-worker-community-win32-x64/
+!distributions/crystal-worker-community-win32-x64/bin/
+!distributions/crystal-worker-community-win32-x64/bin/**
+
 # Test and tool output
 coverage/
 .nyc_output/
@@ -63,6 +69,7 @@ temp/
 *.bak
 *.orig
 *.tgz
+artifacts/
 
 # Crystal report binaries are private by default. Only reviewed fixtures may be committed.
 *.rpt

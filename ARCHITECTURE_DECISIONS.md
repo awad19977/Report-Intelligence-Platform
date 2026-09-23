@@ -66,11 +66,11 @@ These decisions govern Crystal MCP v1. Older research recommendations remain use
 
 **Status:** Accepted, implemented
 
-**Decision:** Public LGPL-3.0-only components include the MCP server, CLI, generic models, plugin API, public SDK, Crystal client SDK, and worker protocol. The production Crystal runtime adapter and Windows worker remain commercial.
+**Decision:** Public LGPL-3.0-only components include the MCP server, CLI, generic models, plugin API, public SDK, Crystal client SDK, and worker protocol. Community and Pro worker source remains proprietary. A compiled Community worker may be published as free-to-use, separately licensed object code; advanced Pro functionality remains paid.
 
 **Rationale:** Developers need stable open contracts and integration clients without exposing the principal Crystal compatibility and editing implementation.
 
-**Consequences:** Public and commercial implementations remain in separate repositories. The versioned worker protocol is the integration boundary, and every published public package carries its own LGPL-3.0-only notice. Separate applications may link to the public libraries under LGPL terms without adopting LGPL for the whole application.
+**Consequences:** Public and commercial source implementations remain in separate repositories. The versioned worker protocol is the integration boundary. Public source packages carry LGPL-3.0-only notices, while binary worker packages carry their own license and exclude SAP runtime assemblies. Separate applications may link to the public libraries under LGPL terms without adopting LGPL for the whole application.
 
 ## ADR-008: General plugin process orchestration is deferred
 

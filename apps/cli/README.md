@@ -11,7 +11,17 @@ npm install --global @report-intelligence/cli
 rip --help
 ```
 
-The preview includes command placeholders for reading, formulas, parameters, SQL, search, documentation, validation, export, and MCP startup. Use `@report-intelligence/mcp-server` with a compatible Crystal worker for the implemented read-only inspection path.
+The read, formulas, parameters, SQL, search, documentation, validation, and export commands remain previews. `rip doctor`, `rip mcp`, and `rip agents install` are functional.
+
+```sh
+rip doctor --report C:\reports\example.rpt
+rip mcp
+rip agents install codex --reports C:\reports
+```
+
+`doctor` is also available as `rip doctor --json` for scripts. Without `--report`, it checks worker discovery and the protocol; opening a report is required to verify the SAP Crystal runtime. `rip mcp` starts the same stdio server as `@report-intelligence/mcp-server`.
+
+`rip agents install` supports `codex`, `claude`, `cursor`, and `vscode`. Codex uses its MCP registration command. The other agents receive project configuration in `.mcp.json`, `.cursor/mcp.json`, or `.vscode/mcp.json` respectively. Existing unrelated servers are preserved. Run the command from the project where the coding agent will work; `--reports` sets the only directory the MCP server can read. The generated configuration starts the pinned npm MCP server and its optional Windows worker automatically.
 
 ## License
 

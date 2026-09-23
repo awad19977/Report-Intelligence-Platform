@@ -8,8 +8,8 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 const reportPath = process.env.CRYSTAL_TEST_REPORT;
 const workerPath = process.env.CRYSTAL_WORKER_PATH;
 
-if (!reportPath || !workerPath) {
-  throw new Error("CRYSTAL_TEST_REPORT and CRYSTAL_WORKER_PATH are required");
+if (!reportPath) {
+  throw new Error("CRYSTAL_TEST_REPORT is required");
 }
 
 const absoluteReportPath = path.resolve(reportPath);
@@ -32,7 +32,7 @@ const transport = new StdioClientTransport({
   cwd: process.cwd(),
   env: {
     ...process.env,
-    CRYSTAL_WORKER_PATH: path.resolve(workerPath),
+    ...(workerPath ? { CRYSTAL_WORKER_PATH: path.resolve(workerPath) } : {}),
     RIP_ALLOWED_REPORT_ROOTS: process.env.RIP_ALLOWED_REPORT_ROOTS ?? path.dirname(absoluteReportPath),
     LOG_LEVEL: process.env.LOG_LEVEL ?? "error",
   },

@@ -1,6 +1,6 @@
 {
   "name": "@report-intelligence/cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Preview command-line interface for the Report Intelligence Platform.",
   "license": "LGPL-3.0-only",
   "author": "Awad Emad",
@@ -32,6 +32,7 @@
   "dependencies": {
     "@report-intelligence/core": "^0.1.0",
     "@report-intelligence/plugin-api": "^0.1.0",
+    "@report-intelligence/mcp-server": "0.1.2",
     "commander": "^11.1.0",
     "zod": "^3.22.0",
     "winston": "^3.11.0"

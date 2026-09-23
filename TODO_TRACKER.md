@@ -92,9 +92,9 @@
 
 ## Milestone 4: Setup and remote operation
 
-- [ ] `rip doctor`
-- [ ] Runtime and worker discovery
-- [ ] Local installation documentation
+- [x] `rip doctor`
+- [x] Runtime and worker discovery (explicit path, Pro, Community npm package, conventional install paths)
+- [x] Local Community worker npm installation documentation
 - [ ] Optional Windows service mode
 - [ ] Remote encrypted transport
 - [ ] Remote authentication and authorization

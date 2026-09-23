@@ -43,7 +43,7 @@ report-intelligence-platform/
 ### Prerequisites
 
 - Node.js 20+
-- A separately licensed commercial Crystal worker on Windows for real `.rpt` access
+- Windows x64 for local `.rpt` extraction
 - SAP Crystal Reports Runtime compatible with that worker
 
 ### Installation
@@ -56,21 +56,28 @@ npm install
 npm run build
 ```
 
-The production Crystal worker is not included in this public repository. Obtain and build it from the separate commercial distribution, then point the MCP server at its executable.
+The published MCP server installs the free-to-use binary-only Community Crystal worker as an optional dependency on Windows x64. The worker source remains in the private commercial repository, and SAP runtime components are not redistributed.
+
+For a consumer installation, install `@report-intelligence/cli` globally, run `rip doctor --report C:\reports\example.rpt`, then run `rip agents install codex --reports C:\reports` (or choose `claude`, `cursor`, or `vscode`). The MCP server also exposes `report-intelligence-mcp doctor`. The worker npm release is unsigned; a separate Store MSIX distribution is prepared in `scripts/build-community-store-msix.ps1` and will be signed by Microsoft only after Store certification.
 
 ### Running the MCP Server
 
 ```bash
-# Set environment variables
-export CRYSTAL_WORKER_PATH="C:/Program Files/Report Intelligence/CrystalWorker/CrystalWorker.exe"
-
 # Start the MCP server
 npm run start --workspace=apps/mcp-server
 ```
 
-### Using the CLI (planned)
+`CRYSTAL_WORKER_PATH` is optional and overrides discovery when selecting a Pro, custom, or separately installed worker.
 
-The CLI surface below is the intended interface. Its command handlers remain placeholders and are not part of the current public release candidate.
+### Crystal Worker Community
+
+`@report-intelligence/crystal-worker-community-win32-x64` contains the compiled read-only Community worker and its non-SAP managed dependencies. It is free to use under its included proprietary binary license, but it is not open-source or LGPL-covered. Package contents carry a SHA-256 manifest and deliberately exclude SAP `CrystalDecisions.*` assemblies.
+
+The MCP server prefers an installed Pro worker when available, then a Store-installed Community worker, and finally the npm Community worker. The future Pro edition will add advanced editing, generation, validation, migration, and supported enterprise deployment capabilities without changing the public worker protocol.
+
+### Using the CLI
+
+`rip doctor`, `rip mcp`, and `rip agents install` are implemented. The report reading, search, documentation, validation, and export CLI commands below remain placeholders; use the MCP server for report extraction.
 
 ```bash
 # Read a report
@@ -194,9 +201,9 @@ Defines the plugin interface:
 - Validator, Exporter, Searcher, Documenter interfaces
 - Dependency Analyzer, Modifier interfaces
 
-### Crystal Client and Commercial Adapter
+### Crystal Client and Worker Editions
 
-The public Crystal client contains shared models, the worker protocol, transport clients, test doubles, and developer helpers. The production SAP Crystal runtime adapter and Windows worker are maintained in the separate commercial repository.
+The public Crystal client contains shared models, the worker protocol, transport clients, test doubles, and developer helpers. Community and Pro SAP Crystal runtime adapter source is maintained in the separate commercial repository. The compiled Community worker is distributed through npm under its own free-to-use binary license.
 
 ### MCP Server (@report-intelligence/mcp-server)
 
@@ -205,18 +212,19 @@ Model Context Protocol server:
 - Manages plugin lifecycle
 - Handles resource/prompt requests
 
-### Crystal Worker (C# .NET, commercial implementation)
+### Crystal Workers (C# .NET, proprietary implementations)
 
 Windows worker process:
 - Hosts SAP Crystal Reports Runtime
 - Executes Crystal SDK operations
 - Communicates through the versioned worker protocol, using stdio first
+- Offers read-only extraction in Community and future advanced capabilities in Pro
 
 ## Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `CRYSTAL_WORKER_PATH` | Path to CrystalWorker executable | Yes |
+| `CRYSTAL_WORKER_PATH` | Optional override path to a Community, Pro, or custom CrystalWorker executable | No |
 | `CRYSTAL_WORKER_ARGS` | JSON array of worker process arguments | No |
 | `CRYSTAL_WORKER_TIMEOUT_MS` | Per-request worker timeout in milliseconds | No |
 | `RIP_ALLOWED_REPORT_ROOTS` | OS-delimited roots from which `.rpt` files may be read | No |
