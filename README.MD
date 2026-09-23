@@ -1,10 +1,20 @@
 # Report Intelligence Platform (RIP)
 
-An AI-native platform for understanding, analyzing, documenting, modifying, generating, and converting enterprise reporting systems.
+Inspect Crystal Reports `.rpt` files from your coding assistant. The current release is a read-only MCP server with 10 tools for report structure, data sources, SQL commands, parameters, formulas, sections, objects, subreports, and running totals.
+
+**Try it on Windows x64** with Node.js 20+ and a compatible, separately installed SAP Crystal Reports runtime:
+
+```powershell
+npm install --global @report-intelligence/cli
+rip doctor --report C:\reports\example.rpt
+rip agents install codex --reports C:\reports
+```
+
+Replace the example paths with your own report and directory. `rip agents install` also supports `claude`, `cursor`, and `vscode`. The npm installation includes a binary-only Community worker on Windows x64; SAP runtime components are not included. [Setup details](apps/cli/README.md) · [MCP server](apps/mcp-server/README.md) · [Report an issue](https://github.com/awad19977/Report-Intelligence-Platform/issues)
 
 ## Current Focus: Crystal MCP v1
 
-The active milestone is a production-ready, read-only Crystal Reports MCP. The immediate target is one verified end-to-end path:
+The active milestone is a read-only Crystal Reports MCP. The end-to-end path is:
 
 ```text
 MCP client -> Node.js MCP server -> Windows Crystal worker -> real .rpt -> validated JSON
@@ -58,7 +68,7 @@ npm run build
 
 The published MCP server installs the free-to-use binary-only Community Crystal worker as an optional dependency on Windows x64. The worker source remains in the private commercial repository, and SAP runtime components are not redistributed.
 
-For a consumer installation, install `@report-intelligence/cli` globally, run `rip doctor --report C:\reports\example.rpt`, then run `rip agents install codex --reports C:\reports` (or choose `claude`, `cursor`, or `vscode`). The MCP server also exposes `report-intelligence-mcp doctor`. The worker npm release is unsigned; a separate Store MSIX distribution is prepared in `scripts/build-community-store-msix.ps1` and will be signed by Microsoft only after Store certification.
+For a consumer installation, use the commands at the top of this README. The MCP server also exposes `report-intelligence-mcp doctor`. The worker npm release is unsigned; a separate Store MSIX distribution is prepared in `scripts/build-community-store-msix.ps1` and will be signed by Microsoft only after Store certification.
 
 ### Running the MCP Server
 
@@ -77,30 +87,7 @@ The MCP server prefers an installed Pro worker when available, then a Store-inst
 
 ### Using the CLI
 
-`rip doctor`, `rip mcp`, and `rip agents install` are implemented. The report reading, search, documentation, validation, and export CLI commands below remain placeholders; use the MCP server for report extraction.
-
-```bash
-# Read a report
-npx rip read report.rpt
-
-# List formulas
-npx rip formulas report.rpt
-
-# List parameters
-npx rip parameters report.rpt
-
-# Extract SQL
-npx rip sql report.rpt
-
-# Generate documentation
-npx rip document report.rpt -f markdown -o docs.md
-
-# Validate a report
-npx rip validate report.rpt
-
-# Export to PDF
-npx rip export report.rpt output.pdf -f pdf
-```
+`rip doctor`, `rip mcp`, and `rip agents install` are implemented. Report reading, search, documentation, validation, and export CLI commands remain placeholders; use the MCP server for report extraction.
 
 ## Delivery Roadmap
 
